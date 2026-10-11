@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>UTS Final Exam Reviewer & Simulator</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--ink:#14213d;--mute:#5a6785;--line:#dde3ef;--pri:#3b55d9;--pri-ink:#fff;--pri-soft:#e8ecff;--ok:#0f7a55;--ok-soft:#dcf5ea;--bad:#c0354a;--bad-ink:#fff;--bad-soft:#fde5e9;--warn:#9a5d06;--warn-soft:#fff1d6;--shadow:0 1px 2px rgba(20,33,61,.06),0 8px 24px rgba(20,33,61,.06);color-scheme:light}
+[data-theme=dark]{--bg:#0e1525;--card:#17213a;--ink:#e8edf8;--mute:#9aa8c6;--line:#2a3756;--pri:#8ba2ff;--pri-ink:#0e1525;--pri-soft:#232f57;--ok:#4ed3a2;--ok-soft:#12372b;--bad:#ff8394;--bad-ink:#2a0d12;--bad-soft:#41202a;--warn:#f1b24a;--warn-soft:#3b2f12;--shadow:0 1px 2px rgba(0,0,0,.4);color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+h1{font-size:1.9rem;line-height:1.2;margin:0 0 6px;letter-spacing:-.02em}
+h2{font-size:1.2rem;margin:0 0 12px}
+h3{margin:0 0 8px}
+p{margin:0 0 12px}
+.lead{color:var(--mute);margin-bottom:22px}
+:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.app{display:flex;min-height:100vh}
+.side{width:250px;position:sticky;top:0;height:100vh;padding:20px 14px;display:flex;flex-direction:column;gap:18px;border-right:1px solid var(--line);background:var(--card)}
+.brand{display:flex;gap:10px;align-items:center}
+.brand small{display:block;color:var(--mute);font-size:.8rem}
+.logo{width:40px;height:40px;border-radius:12px;background:var(--pri);color:var(--pri-ink);display:grid;place-items:center;font-weight:800;font-size:.85rem}
+#nav{display:grid;gap:4px}
+.nv{display:flex;align-items:center;gap:12px;width:100%;padding:11px 12px;border:0;background:none;color:var(--mute);border-radius:12px;font:inherit;font-weight:600;cursor:pointer;text-align:left}
+.nv:hover{background:var(--pri-soft);color:var(--ink)}
+.nv.on{background:var(--pri-soft);color:var(--pri)}
+.badge{margin-left:auto;background:#c0354a;color:#fff;font-style:normal;font-size:12px;border-radius:999px;padding:0 7px;line-height:20px}
+.side-foot{margin-top:auto;display:grid;gap:6px}
+.ghost-btn{display:flex;gap:10px;align-items:center;padding:10px 12px;border:0;background:none;border-radius:12px;color:var(--mute);font:inherit;font-weight:600;cursor:pointer;text-align:left}
+.ghost-btn:hover{background:var(--pri-soft);color:var(--ink)}
+.main-wrap{flex:1;min-width:0}
+main{max-width:920px;margin:0 auto;padding:30px 26px 100px;outline:none}
+.top,.tabbar{display:none}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-bottom:18px}
+.card.flat{box-shadow:none}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow)}
+.tile b{display:block;font-size:1.7rem;line-height:1.2}
+.tile span{color:var(--mute);font-size:.88rem}
+.btn{font:inherit;font-weight:600;padding:11px 18px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer;transition:transform .1s,border-color .15s,background .15s}
+.btn:hover:not(:disabled){border-color:var(--pri)}
+.btn:active:not(:disabled){transform:scale(.98)}
+.btn.pri{background:var(--pri);color:var(--pri-ink);border-color:var(--pri)}
+.btn.danger{background:var(--bad);color:var(--bad-ink);border-color:var(--bad)}
+.btn.sm{padding:7px 12px;font-size:.9rem}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.row.sp{justify-content:space-between}
+.chip{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.78rem;font-weight:600;border:1px solid var(--line);color:var(--mute);background:var(--bg)}
+.chip.sub{color:#fff;border-color:transparent;background:var(--c)}
+.chip.d-easy{color:var(--ok);background:var(--ok-soft);border-color:transparent}
+.chip.d-medium{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.chip.d-hard{color:var(--bad);background:var(--bad-soft);border-color:transparent}
+.chip.ok{color:var(--ok);background:var(--ok-soft);border-color:transparent}
+.chip.bad{color:var(--bad);background:var(--bad-soft);border-color:transparent}
+.chip.un{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.bar{height:10px;background:var(--line);border-radius:999px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pri);border-radius:999px;transition:width .35s}
+.meta{display:flex;justify-content:space-between;gap:10px;color:var(--mute);font-size:.9rem;margin:8px 0 18px}
+.qtext{font-size:1.18rem;font-weight:600;line-height:1.5;margin:0 0 18px;white-space:pre-line}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:14px;align-items:center;text-align:left;width:100%;padding:14px 16px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover:not(:disabled){border-color:var(--pri);background:var(--pri-soft)}
+.opt .ltr{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font-weight:700;background:var(--pri-soft);color:var(--pri)}
+.opt.sel{border-color:var(--pri);background:var(--pri-soft)}
+.opt.sel .ltr{background:var(--pri);color:var(--pri-ink)}
+.opt.right{border-color:var(--ok);background:var(--ok-soft)}
+.opt.right .ltr{background:var(--ok);color:#fff}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt.wrong .ltr{background:var(--bad);color:var(--bad-ink)}
+.opt:disabled{cursor:default;color:var(--ink)}
+.txt,select{font:inherit;width:100%;padding:12px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.txt:focus,select:focus{border-color:var(--pri);outline:none}
+.idbox{display:flex;gap:10px;flex-wrap:wrap}
+.idbox .txt{flex:1;min-width:200px}
+.recall{text-align:center;padding:26px 10px;color:var(--mute);border:2px dashed var(--line);border-radius:14px}
+.recall .btn{margin-top:12px}
+.fb{margin-top:18px;padding:16px 18px;border-radius:14px;border-left:6px solid}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb p{margin:8px 0 0}
+.note{margin-top:10px;font-size:.92rem;color:var(--mute)}
+.form{display:grid;gap:16px}
+.form label{display:grid;gap:6px;font-weight:600}
+.form .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.chk{display:flex!important;grid-template-columns:none!important;align-items:center;gap:10px;font-weight:500!important}
+.chk input{width:20px;height:20px;accent-color:var(--pri)}
+.subj-row{display:flex;align-items:center;gap:12px;margin:10px 0}
+.subj-row .nm{width:150px;flex:none;font-weight:600;font-size:.92rem}
+.subj-row .bar{flex:1}
+.subj-row .vl{width:150px;flex:none;text-align:right;font-size:.85rem;color:var(--mute)}
+.subj-row .bar i{background:var(--c)}
+.hero-score{font-size:3.4rem;font-weight:800;line-height:1;letter-spacing:-.03em}
+.rec{padding:12px 14px;border-radius:12px;background:var(--pri-soft);margin-bottom:10px}
+.rec.warn{background:var(--warn-soft)}
+.rec.good{background:var(--ok-soft)}
+.pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:8px}
+.pb{padding:8px 0;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.pb.done{background:var(--pri-soft);border-color:var(--pri);color:var(--pri)}
+.pb.cur{outline:3px solid var(--pri);outline-offset:1px}
+.xhead{position:sticky;top:0;z-index:5;background:var(--bg);padding:8px 0 4px}
+.clock{font-variant-numeric:tabular-nums;font-weight:700;padding:4px 12px;border-radius:999px;background:var(--pri-soft);color:var(--pri)}
+.clock.low{background:var(--bad-soft);color:var(--bad)}
+.rv{border-left:6px solid var(--line);padding:16px 18px;border-radius:14px;background:var(--card);border:1px solid var(--line);border-left-width:6px;margin-bottom:12px}
+.rv.c{border-left-color:var(--ok)}.rv.w{border-left-color:var(--bad)}.rv.u{border-left-color:var(--warn)}
+.rv .qq{font-weight:600;margin:8px 0;white-space:pre-line}
+.kv{display:flex;gap:10px;flex-wrap:wrap;margin:4px 0}
+.kv span{color:var(--mute);min-width:120px}
+.expl{margin:10px 0 6px;padding:10px 12px;background:var(--bg);border-radius:10px;font-size:.95rem}
+.fcard{min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:12px;padding:28px;border-radius:22px;background:var(--card);border:2px solid var(--line);box-shadow:var(--shadow);cursor:pointer;white-space:pre-line}
+.fcard.back{border-color:var(--pri);background:var(--pri-soft)}
+.fcard.anim{animation:flip .35s ease}
+.fc-tag{font-size:.78rem;font-weight:700;color:var(--mute)}
+.fc-main{font-size:1.3rem;font-weight:600}
+.fc-note{font-size:.95rem;color:var(--mute);max-width:560px}
+@keyframes flip{from{transform:rotateY(80deg);opacity:.2}to{transform:none;opacity:1}}
+details.mi{border:1px solid var(--line);border-radius:14px;margin-bottom:10px;background:var(--card)}
+details.mi summary{padding:14px 16px;cursor:pointer;font-weight:600;list-style:none}
+details.mi .in{padding:0 16px 16px}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+.scroll{overflow-x:auto}
+.overlay{position:fixed;inset:0;background:rgba(10,15,30,.55);display:grid;place-items:center;padding:20px;z-index:50}
+.dlg{background:var(--card);border-radius:18px;padding:24px;max-width:440px;width:100%;box-shadow:var(--shadow)}
+code,pre{font-family:ui-monospace,Consolas,monospace;font-size:.85rem}
+pre{background:var(--bg);padding:12px;border-radius:12px;overflow-x:auto}
+.warnbox{padding:12px 14px;border-radius:12px;background:var(--warn-soft);color:var(--ink);margin-bottom:16px}
+@media(max-width:899px){
+ .side{display:none}
+ .top{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+ .top .ghost-btn{padding:8px}
+ .tabbar{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);z-index:30;padding-bottom:env(safe-area-inset-bottom,0)}
+ .tb{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border:0;background:none;color:var(--mute);font:inherit;font-size:.68rem;font-weight:600;cursor:pointer}
+ .tb.on{color:var(--pri)}
+ .tb .badge{position:absolute;top:2px;right:8px;margin:0;line-height:16px;font-size:10px;padding:0 5px}
+ main{padding:18px 14px 100px}
+ h1{font-size:1.55rem}
+ .subj-row{flex-wrap:wrap}.subj-row .nm,.subj-row .vl{width:auto;flex:1 1 40%}.subj-row .bar{flex:1 1 100%;order:3}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+ <aside class="side">
+  <div class="brand"><div class="logo">UTS</div><div><b>Final Exam Reviewer</b><small>Understanding the Self</small></div></div>
+  <nav id="nav" aria-label="Main"></nav>
+  <div class="side-foot">
+   <button class="ghost-btn" data-act="theme" id="themeBtn"></button>
+   <button class="ghost-btn" data-act="reset"><svg class="i" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>Reset progress</button>
+  </div>
+ </aside>
+ <div class="main-wrap">
+  <header class="top"><div class="brand"><div class="logo">UTS</div><b>Exam Reviewer</b></div>
+   <div><button class="ghost-btn" data-act="theme" id="themeBtn2" aria-label="Toggle theme"></button><button class="ghost-btn" data-act="reset" aria-label="Reset progress"><svg class="i" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg></button></div></header>
+  <main id="view" tabindex="-1"></main>
+ </div>
+ <nav class="tabbar" id="tabbar" aria-label="Main"></nav>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* =====================================================================
+   1. SUBJECTS & TOPICS
+   ===================================================================== */
+const SUBJECTS={
+ physical:{name:'The Biological & Physical Self',short:'Physical Self',color:'#2f7fd8'},
+ sexual:{name:'The Sexual Self',short:'Sexual Self',color:'#c93a77'},
+ material:{name:'The Material Self & Consumer Psychology',short:'Material Self',color:'#b57508'},
+ spiritual:{name:'The Spiritual Self & Logotherapy',short:'Spiritual Self',color:'#7551d1'},
+ political:{name:'The Political Self & Leadership',short:'Political Self',color:'#168a68'},
+ digital:{name:'The Digital Self',short:'Digital Self',color:'#0b86a0'}
+};
+const T={
+ her:'Heredity, Environment & Chromosomes',endo:'Endocrine System & Hormones',sexc:'Primary vs. Secondary Sex Characteristics',per:'The 4 Self-Perceptions',aud:'Imaginary Audience & Self-Care',
+ hist:'Historical Perspectives on Sexuality',evo:'Evolutionary Perspective',tri:'Sex, Gender & Sexual Orientation',src:'Sexual Response Cycle',love:'Theories of Love & Attraction',stis:'STIs & Reproductive Health',
+ jam:'William James & the Material Self',con:'Constituents of the Material Self',mat:'Materialism & Consumerism',pers:'Persuasion Techniques & Maslow',
+ spi:'Spiritual Self, Beliefs & Practices',ind:'Indigenous Spirituality',rit:'Rituals',ebr:'Ebralinag Case',logo:'Logotherapy (Viktor Frankl)',
+ pol:'Political Self & Citizenship',soc:'Socialization & Social Influence',lead:'Leadership Theories',fil:'Filipino Values in Politics',
+ dig:'Digital Self & Zhao’s Characteristics',imp:'Impression Management (Goffman)',dis:'Online Disinhibition Effect',haz:'Psychological Hazards Online'
+};
+const TYPE_LABEL={mcq:'Multiple choice',tf:'True / False',id:'Identification',sit:'Situational'};
+
+/* =====================================================================
+   2. QUESTION BANK  (edit or add questions here)
+   ---------------------------------------------------------------------
+   mc / sit : mc(subject, topic, difficulty, question, CORRECT, [3 wrong], explanation)
+              The correct answer is written FIRST; the app shuffles choices every time.
+   tf       : tf(subject, topic, difficulty, statement, true|false, explanation)
+   idq      : idq(subject, topic, difficulty, clue, answer, [alternate answers], explanation)
+   TIP: add new questions at the END of the list so saved progress stays matched.
+   ===================================================================== */
+const QUESTIONS=[];
+const mc=(s,t,d,q,c,w,e)=>QUESTIONS.push({subject:s,topic:t,type:'mcq',difficulty:d,question:q,options:[c,...w],answer:0,explanation:e});
+const sit=(s,t,d,q,c,w,e)=>QUESTIONS.push({subject:s,topic:t,type:'sit',difficulty:d,question:q,options:[c,...w],answer:0,explanation:e});
+const tf=(s,t,d,q,a,e)=>QUESTIONS.push({subject:s,topic:t,type:'tf',difficulty:d,question:q,answer:a,explanation:e});
+const idq=(s,t,d,q,a,alt,e)=>QUESTIONS.push({subject:s,topic:t,type:'id',difficulty:d,question:q,answer:a,alt:alt||[],explanation:e});
+
+/* ---------- PHYSICAL SELF ---------- */
+mc('physical',T.her,'easy',"What shapes a person’s physical self, according to the reviewer?","Both heredity and environment",["Genes alone","The environment alone","The pineal gland only"],"★ Exam Focus: The physical self is influenced by both heredity and environment, not shaped by genes alone.");
+idq('physical',T.her,'easy',"Biological traits and genetic characteristics transmitted from parents to children.","Heredity",[],"Heredity is the passing of biological traits and genetic characteristics from parents to children.");
+idq('physical',T.her,'easy',"All external conditions affecting the physical, mental, and social development of a person.","Environment",[],"Environment covers all outside conditions that affect a person’s physical, mental, and social development.");
+tf('physical',T.her,'easy',"The physical self is shaped by genes alone.",false,"False. ★ Exam Focus: Both heredity and environment influence the physical self.");
+tf('physical',T.her,'medium',"In the 23rd pair of chromosomes, XX is female and XY is male.",true,"True. The 23rd pair (the sex chromosomes) determines biological sex: XX = female, XY = male.");
+mc('physical',T.endo,'easy',"Which gland is called the “master gland” because it regulates other endocrine glands and orchestrates puberty?","Pituitary gland",["Hypothalamus","Pineal gland","Thyroid gland"],"The pituitary gland is the master gland. The hypothalamus secretes the hormones that control the pituitary.");
+mc('physical',T.endo,'medium',"Which gland releases melatonin, which regulates the sleep-wake cycle and circadian rhythms?","Pineal gland",["Thymus","Thyroid gland","Parathyroid gland"],"The pineal gland releases melatonin, which regulates the sleep-wake cycle and circadian rhythms.");
+mc('physical',T.endo,'medium',"Which gland regulates the level of calcium in the bloodstream?","Parathyroid gland",["Thyroid gland","Thymus","Pituitary gland"],"The parathyroid gland regulates calcium levels in the blood. (The thyroid controls metabolism and growth.)");
+mc('physical',T.endo,'medium',"Which gland produces hormones that control metabolism and growth?","Thyroid gland",["Parathyroid gland","Pineal gland","Thymus"],"The thyroid gland produces hormones controlling metabolism and growth.");
+mc('physical',T.endo,'medium',"Which hormone is primarily responsible for developing male secondary sex characteristics such as a deeper voice and facial hair?","Testosterone",["Estrogen","Prolactin","Oxytocin"],"★ Exam Focus: Testosterone is the primary hormone for male secondary sex characteristics (deeper voice, facial hair) during puberty.");
+tf('physical',T.endo,'medium',"Estrogen is the primary hormone that causes a deeper voice and facial hair during puberty.",false,"False. That is testosterone. Estrogen triggers female secondary sex characteristics such as breast enlargement and menstruation.");
+mc('physical',T.endo,'hard',"Which hormone–function pair is correct?","Prolactin – facilitates milk production after birth",["Prolactin – promotes uterine contractions","Oxytocin – regulates the sleep-wake cycle","Oxytocin – controls calcium in the blood"],"Prolactin facilitates milk production after birth. Oxytocin promotes uterine contractions and maternal bonding.");
+idq('physical',T.endo,'medium',"The hormone that promotes uterine contractions and maternal bonding.","Oxytocin",[],"Oxytocin promotes uterine contractions and maternal bonding. Prolactin is the one for milk production.");
+idq('physical',T.sexc,'easy',"Physical anatomical traits present at birth and directly involved in reproduction (e.g., penis, testes, ovaries, uterus).","Primary sex characteristics",["primary sex characteristic","primary sex traits"],"★ Exam Focus: Primary sex characteristics are present at birth and directly involved in reproduction.");
+tf('physical',T.sexc,'medium',"Secondary sex characteristics are present at birth and directly involved in reproduction.",false,"False. That describes primary sex characteristics. Secondary ones (voice deepening, body hair, breast development) develop at puberty and are not directly involved in reproduction.");
+sit('physical',T.sexc,'medium',"At age 13, Marco notices that his voice is getting deeper and facial hair is starting to grow. These changes are examples of:","Secondary sex characteristics",["Primary sex characteristics","Self-concept","The imaginary audience"],"Voice deepening and facial hair appear at puberty and are not directly involved in reproduction, so they are secondary sex characteristics.");
+sit('physical',T.per,'easy',"Ana looks in the mirror and thinks, “I am an attractive and desirable person.” This is her:","Self-image",["Self-concept","Self-identity","Self-esteem"],"★ Exam Focus: Self-image is the subjective mental picture of one’s physical appearance.");
+sit('physical',T.per,'medium',"A student introduces herself: “I am a psychology student and I live in Quezon City.” These statements are examples of:","Self-identity",["Self-image","Self-concept","Self-esteem"],"★ Exam Focus: Self-identity refers to social, categorical, or geographic identifiers such as “I am living in Quezon City” or “I am a psychology student.”");
+sit('physical',T.per,'medium',"Jose describes himself: “I’m friendly and smart, but I get irritated at times.” This is his:","Self-concept",["Self-image","Self-identity","Self-esteem"],"★ Exam Focus: Self-concept is the overall cognitive construction and beliefs held about one’s nature and traits.");
+idq('physical',T.per,'medium',"The evaluative assessment of one’s personal self-worth.","Self-esteem",[],"Self-esteem is the evaluation of personal self-worth. Negative body image from strict beauty standards lowers it.");
+mc('physical',T.per,'hard',"Which statement correctly distinguishes self-image from self-concept?","Self-image is the mental picture of one’s physical appearance; self-concept is the overall belief about one’s nature and traits.",["Self-image is the overall belief about one’s traits; self-concept is the mental picture of one’s appearance.","Self-image is a social or geographic label; self-concept is a feeling of self-worth.","Self-image is the evaluation of self-worth; self-concept is a social category."],"Self-image = picture of appearance. Self-concept = beliefs about nature and traits. Self-identity = social/geographic labels. Self-esteem = evaluation of self-worth.");
+sit('physical',T.aud,'medium',"Before reporting in class, Lia is convinced that everyone is staring at her and judging her, even though no one is paying attention. This is an example of:","The imaginary audience",["Self-esteem","Self-identity","Toxic disinhibition"],"The imaginary audience is the egocentric adolescent belief that one is constantly watched and evaluated by others.");
+mc('physical',T.aud,'easy',"Why is exercise considered an essential self-care practice?","It improves concentration and promotes better mood",["It permanently changes a person’s chromosomes","It replaces the need for a balanced diet","It removes the influence of heredity"],"★ Exam Focus: Exercise is essential self-care because it improves concentration and promotes better mood.");
+
+/* ---------- SEXUAL SELF ---------- */
+mc('sexual',T.hist,'medium',"Which era revered the male as the dominant symbol of fertility and viewed women as subordinate property with no legal rights?","Ancient Greece",["The Victorian Era","The Puritan Era","The Protestant Reformation"],"In Ancient Greece the male was the dominant symbol of fertility, and women were seen as subordinate property without legal rights.");
+idq('sexual',T.hist,'medium',"The era in which Catholic hegemony decreed all non-procreative sexual acts evil and labeled women as either Temptress (Eve) or Virgin (Mary).","Middle Ages",["The Middle Ages","Medieval period","Medieval times","Medieval era"],"In the Middle Ages women were forced into a rigid dichotomy: Temptress (Eve) or Virgin / Woman of Virtue (Mary).");
+sit('sexual',T.hist,'medium',"A 16th-century reformer criticizes church corruption, says sex is a natural drive that strengthens marriage, and argues that priests should be allowed to marry. Which movement does he belong to?","The Protestant Reformation",["The Puritan Era","The Middle Ages","The Victorian Era"],"The Protestant Reformation challenged church corruption, viewed sex as a natural drive that strengthens marriage, and affirmed that priests could marry.");
+mc('sexual',T.hist,'medium',"Which era (17th–18th century) saw a strict religious and moral crackdown against non-marital intimacy?","The Puritan Era",["The Protestant Reformation","The Victorian Era","Ancient Greece"],"The Puritan Era (17th–18th century) enforced strict religious and moral rules against non-marital intimacy.");
+mc('sexual',T.hist,'hard',"Which statement about the Victorian Era (1837–1901) matches the reviewer?","Commercial prostitution grew and homosexuality was branded a threat to social order.",["Priests were allowed to marry and sex strengthened marriage.","All non-procreative acts were decreed evil by Catholic hegemony.","Women were legally treated as property with no rights."],"Victorian Era: commercial prostitution grew, homosexuality was branded a threat to social order, and female pleasure was suppressed.");
+mc('sexual',T.evo,'medium',"According to the evolutionary perspective, why are men attracted to curvy bodies and developed breasts?","They signaled health and lactation capacity before infant formula existed.",["They signaled physical defense and survival.","They signaled wealth and social status.","They signaled long-term loyalty."],"Evolutionary view: men are drawn to curvy bodies and developed breasts as signs of health and lactation capacity. Women are drawn to taller, protective partners as signs of physical defense and survival.");
+idq('sexual',T.tri,'medium',"A person’s internal, innate sense of self as a gender.","Gender identity",[],"Gender identity is the internal, innate sense of self. Gender expression is the outward presentation.");
+idq('sexual',T.tri,'medium',"The outward presentation of gender through clothing, grooming, and behavior.","Gender expression",[],"Gender expression is the outward presentation (clothing, grooming, behavior). Gender identity is internal.");
+mc('sexual',T.tri,'medium',"Which term describes a person born with traits that do not fit the typical definitions of male or female?","Intersex",["Asexual","Pansexual","Bisexual"],"Sex is classified as male, female, or intersex (born with traits not fitting typical male/female definitions). Asexual, pansexual, and bisexual are sexual orientations.");
+sit('sexual',T.tri,'hard',"Riley feels deep inside that she is a woman, but she usually wears plain shirts and pants. Her inner sense of being a woman is her ______, while her clothing is her ______.","Gender identity; gender expression",["Gender expression; gender identity","Sexual orientation; gender identity","Biological sex; sexual orientation"],"Gender identity is the internal, innate sense of self. Gender expression is the outward presentation such as clothing and grooming.");
+mc('sexual',T.src,'easy',"What is the correct order of the Masters & Johnson sexual response cycle?","Desire → Arousal → Plateau → Orgasm → Resolution",["Arousal → Desire → Orgasm → Plateau → Resolution","Desire → Plateau → Arousal → Orgasm → Resolution","Arousal → Plateau → Desire → Resolution → Orgasm"],"The five phases are Desire, Arousal, Plateau, Orgasm, and Resolution.");
+mc('sexual',T.src,'medium',"During which phase are sexual tension at its peak and pre-ejaculatory fluid released?","Plateau",["Arousal","Orgasm","Resolution"],"At the Plateau phase tension peaks, penile circumference increases, and pre-ejaculatory fluid is released.");
+sit('sexual',T.src,'hard',"Carlo says the “pull-out” method is completely safe because he withdraws before ejaculation. Which fact from the reviewer shows he is wrong?","Pre-ejaculatory fluid released during the plateau phase often contains active sperm.",["Sperm is only released during the resolution phase.","Arousal always ends in orgasm.","Men have no refractory period."],"Pre-ejaculatory fluid released during plateau often contains active sperm, so withdrawal is highly unreliable.");
+tf('sexual',T.src,'medium',"According to the reviewer, men have a single orgasm followed by a refractory rest period, while women are capable of multiple orgasms without an immediate refractory barrier.",true,"True, per the reviewer. (See Source Notes: this is a general simplification.)");
+tf('sexual',T.src,'hard',"Physiological arousal means that a person has given consent.",false,"False. Cognitive factors and mutual consent are essential; physiological arousal does not equal consent.");
+mc('sexual',T.love,'easy',"What are the 3 phases of romantic love?","Lust → Attraction → Attachment",["Intimacy → Passion → Commitment","Desire → Arousal → Resolution","Eros → Storge → Agape"],"Lust (sexual craving) → Attraction (infatuation, romantic pursuit) → Attachment (long-term security and union).");
+sit('sexual',T.love,'hard',"Mia chooses partners using a checklist: same career goals, same religion, and financial stability. Which of John Lee’s love styles is this?","Pragma",["Eros","Ludus","Storge"],"Pragma is practical, logical, compatibility-driven love.");
+sit('sexual',T.love,'hard',"Ken constantly checks his girlfriend’s phone, becomes jealous of every message, and feels insecure whenever she is with friends. Which love style is this?","Mania",["Agape","Storge","Eros"],"Mania is obsessive, possessive, jealous love driven by insecurity.");
+mc('sexual',T.love,'medium',"What are the three components of Sternberg’s Triangular Theory of Love?","Intimacy, passion, and commitment",["Lust, attraction, and attachment","Eros, ludus, and agape","Quality time, touch, and gifts"],"Intimacy (warmth), Passion (physical attraction), and Commitment (decision to maintain love).");
+idq('sexual',T.love,'medium',"In Sternberg’s theory, the ideal, complete form of love that combines intimacy, passion, and commitment.","Consummate love",["consummate"],"Consummate love = Intimacy + Passion + Commitment.");
+sit('sexual',T.love,'hard',"A couple has deep emotional closeness and a long-term commitment, but little physical passion. Which of Sternberg’s types of love is this?","Companionate love",["Romantic love","Fatuous love","Empty love"],"Companionate = Intimacy + Commitment. Romantic = Intimacy + Passion. Fatuous = Passion + Commitment. Empty = Commitment only.");
+mc('sexual',T.love,'medium',"Which of these is NOT one of the 5 love languages?","Shared Goals",["Quality Time","Acts of Service","Words of Affirmation"],"The 5 love languages: Quality Time, Physical Touch, Acts of Service, Words of Affirmation, and Receiving Gifts.");
+tf('sexual',T.stis,'medium',"Condoms are single-use barrier protections, so a condom should never be reused.",true,"True. Condoms are strictly single-use. Complete abstinence is the only method listed as 100% effective.");
+mc('sexual',T.stis,'medium',"Which statement about STIs/STDs matches the reviewer?","They are preventable and treatable, but often have no symptoms.",["They always cause obvious symptoms.","They spread only through sexual contact.","They are caused by fewer than ten infectious agents."],"STIs involve over 30 infectious agents spread via sexual contact, blood, or from mother to child; they are preventable and treatable but commonly asymptomatic.");
+
+/* ---------- MATERIAL SELF ---------- */
+idq('material',T.jam,'easy',"Complete William James’ formulation: “A man’s self is the sum total of what he can ______.”","Call his",["call his own"],"William James: “A man’s self is the sum total of what he can call his.”");
+mc('material',T.jam,'medium',"Which of the following is NOT part of the material self according to William James?","His religion",["His bank account","His ancestors","His reputation"],"★ Exam Focus: James includes body, clothes, immediate family, home, ancestors, reputation, and bank account — NOT religion.");
+mc('material',T.con,'easy',"Which is the innermost and most personal part of the material self?","The body",["Clothes","Home","Immediate family"],"★ Exam Focus: The body is the innermost and most personal part of the material self.");
+mc('material',T.con,'easy',"In the material self, clothes are mainly a form of:","Self-expression conveying style and personal taste",["The earliest nest of selfhood","The innermost part of the self","A symbol of ancestry"],"★ Exam Focus: Clothes are a form of self-expression conveying style and personal taste.");
+idq('material',T.con,'medium',"The constituent of the material self described as “the earliest nest of our selfhood.”","Home",[],"★ Exam Focus: Home is the earliest nest of our selfhood.");
+tf('material',T.con,'medium',"Pets can symbolically define identity and express social status, prestige, and pride.",true,"True. ★ Exam Focus: Immediate family and pets are extensions of the self.");
+idq('material',T.mat,'medium',"The perception that tangible objects, although not literally part of us, are extensions of our personal identity.","Psychological ownership",[],"Tangible objects do not literally become part of who we are, but we perceive them as extensions of personal identity.");
+tf('material',T.mat,'medium',"Material possessions give long-lasting happiness.",false,"False. Material possessions do NOT give long-lasting happiness.");
+mc('material',T.mat,'medium',"Which statement about material possessions is TRUE?","Lacking or losing them can disrupt mental health.",["They make people less motivated to work.","They give long-lasting happiness.","They never affect a person’s identity."],"Possessions can motivate people to work harder, and lack or loss of them can disrupt mental health. They do not give long-lasting happiness.");
+idq('material',T.mat,'medium',"The negative effect of a strong desire for material possessions.","Materialism",[],"★ Exam Focus: Materialism is the negative effect of a strong desire for material possessions.");
+idq('material',T.mat,'medium',"An individual who is excessively concerned with acquiring possessions.","Materialistic person",["materialistic","materialistic individual"],"★ Exam Focus: A materialistic person is excessively concerned with acquiring possessions.");
+mc('material',T.mat,'hard',"Which statement defines consumerism?","The ideology that increasing consumption of goods and services is always a desirable goal.",["The negative effect of a strong desire for possessions.","An individual who is excessively concerned with acquiring possessions.","The perception that objects are extensions of one’s identity."],"★ Exam Focus: Consumerism is the ideology that more consumption is always desirable. Materialism is the negative effect of strongly desiring possessions.");
+tf('material',T.mat,'medium',"Lower materialism is linked to higher genuine life satisfaction (“Consume less, live more”).",true,"True. Lower materialism correlates with higher genuine life satisfaction.");
+sit('material',T.pers,'hard',"A salesperson first asks a customer to try a free sample. After the customer agrees, the salesperson later convinces the customer to buy the full set. Which technique is this?","Foot-in-the-door",["Door-in-the-face","Normative influence","Ingratiation"],"★ Exam Focus: Foot-in-the-door = getting agreement to a smaller request first, which leads to agreement to a bigger one later.");
+sit('material',T.pers,'hard',"A seller first asks you to buy a ₱10,000 bundle. You refuse, so the seller offers a ₱1,500 bundle, and you accept. Which technique is this?","Door-in-the-face",["Foot-in-the-door","Informational influence","Supplication"],"★ Exam Focus: Door-in-the-face = following an extravagant request with a reasonable compromise request that gets accepted.");
+tf('material',T.pers,'hard',"Foot-in-the-door means following an extravagant request with a smaller compromise request.",false,"False. That is the door-in-the-face technique. Foot-in-the-door starts with a small request, then asks for a bigger one.");
+mc('material',T.pers,'hard',"Which item is listed among Maslow’s basic physiological needs even though humans can survive without it?","Sex",["Water","Sleep","Excretion"],"Basic physiological needs include breathing, food, water, sleep, homeostasis, and excretion. Sex is listed biologically, but humans can survive without it.");
+
+/* ---------- SPIRITUAL SELF ---------- */
+idq('spiritual',T.spi,'easy',"The innermost working of a person’s mind, behavior, beliefs, and morals, involving every aspect of the human person.","Spiritual self",[],"★ Exam Focus: The spiritual self is the innermost working of a person’s mind, behavior, beliefs, and morals.");
+idq('spiritual',T.spi,'easy',"A person’s definition of what is right and wrong.","Morals",["moral","morality"],"★ Exam Focus: Morals are a person’s definition of what is right and wrong.");
+mc('spiritual',T.spi,'medium',"Which statement correctly distinguishes belief from practice?","Belief is the internal faith and moral framework; practice is the external ritual or ceremony.",["Belief is the external ritual; practice is the internal faith.","Both are external rituals and ceremonies.","Belief is a ceremony; practice is a moral definition."],"Belief = internal faith and moral framework guiding ethical decisions. Practice = external rituals and ceremonies.");
+sit('spiritual',T.spi,'medium',"Every Sunday, Rina receives Holy Communion, and at home she burns incense. These are examples of:","Practices",["Beliefs","Morals","Logotherapy"],"★ Exam Focus: Burning incense and Holy Communion are practices (external rituals and ceremonies).");
+tf('spiritual',T.spi,'hard',"When a person’s practice is inconsistent with their belief, they will either abandon the belief or act according to it.",true,"True. Inconsistency between practice and belief creates internal conflict.");
+mc('spiritual',T.spi,'medium',"Being free from materialistic attachments and physical desires while seeking transcendence is a principle of:","Spirituality",["Religiosity","Materialism","Consumerism"],"★ Exam Focus: Freedom from materialistic attachments and physical desires while seeking transcendence is a principle of spirituality.");
+mc('spiritual',T.spi,'medium',"A spiritually healthy person is one who:","Finds inner peace and purpose through faith or reflection",["Avoids reflecting on beliefs","Collects as many possessions as possible","Follows rituals without any belief"],"★ Exam Focus: A spiritually healthy person finds inner peace and purpose through faith or reflection.");
+idq('spiritual',T.spi,'easy',"Belief in and worship of multiple gods.","Polytheism",[],"★ Exam Focus: Polytheism is belief in and worship of multiple gods.");
+mc('spiritual',T.spi,'medium',"Which of the following are contemplative practices?","Mindfulness, prayer, and journaling",["Kulam, barang, and sacrificial rituals","Foot-in-the-door and door-in-the-face","Validation seeking and FOMO"],"★ Exam Focus: Contemplative practices include mindfulness, prayer, and journaling.");
+idq('spiritual',T.ind,'easy',"Indigenous healers, shamans, and leaders regarded as the first psychologists in the Philippines.","Babaylans",["babaylan","the babaylans"],"★ Exam Focus: Babaylans were indigenous healers, shamans, and leaders, regarded as the first psychologists in the Philippines.");
+mc('spiritual',T.ind,'hard',"Which indigenous Filipino soul concept refers to the vital spirit or willpower?","Dungan",["Kaluluwa","Guinhawa","Kakambal"],"Kaluluwa = soul; Dungan = vital spirit/willpower; Guinhawa = breath/energy; Kakambal = spiritual double.");
+mc('spiritual',T.rit,'medium',"Rituals that are patterned after sacred myths and repeat them are called:","Imitative rituals",["Negative rituals","Sacrificial rituals","Life crisis rituals"],"Imitative rituals are patterned after sacred myths and repeat them.");
+sit('spiritual',T.rit,'hard',"A community follows strict rules about what must NOT be done during a sacred season: no loud noise and no eating certain foods. Which type of ritual is this?","Negative rituals",["Imitative rituals","Sacrificial rituals","Life crisis rituals"],"Negative rituals focus on rules of prohibition, taboos, and restrictions.");
+sit('spiritual',T.rit,'hard',"A village holds a ceremony when a young man marries and another when an elder dies. Which type of ritual do these are?","Life crisis rituals",["Imitative rituals","Negative rituals","Sacrificial rituals"],"Life crisis rituals mark transitions from one life stage to another (birth, marriage, death).");
+tf('spiritual',T.rit,'medium',"Sacrificial rituals are the earliest historical form of religion.",true,"True. Sacrificial rituals are the earliest historical form of religion.");
+mc('spiritual',T.ebr,'medium',"In Ebralinag vs. Superintendent of Cebu, what did the Court decide?","It ruled in favor of the students, affirming that religious freedom is of paramount importance.",["It ruled in favor of the school and required all students to comply.","It ruled that religious freedom is less important than national policy.","It dismissed the case without a decision."],"★ Exam Focus: The Court ruled in favor of the students, affirming that the exercise of religious freedom is of paramount importance.");
+idq('spiritual',T.logo,'easy',"Psychotherapy developed by Viktor Frankl that centers on finding meaning in life experiences as the primary human motivation.","Logotherapy",[],"★ Exam Focus: Logotherapy, developed by Viktor Frankl, centers on finding meaning as the primary human motivation.");
+mc('spiritual',T.logo,'easy',"Viktor Frankl formulated Logotherapy based on his experiences as a:","Holocaust survivor",["Soldier in the Philippine-American War","Victorian-era physician","Protestant reformer"],"★ Exam Focus: Frankl formulated Logotherapy based on his experiences as a Holocaust survivor.");
+tf('spiritual',T.logo,'medium',"In Logotherapy, meaning is the same thing as happiness.",false,"False. Meaning ≠ Happiness. A person can suffer deeply and still find profound meaning.");
+mc('spiritual',T.logo,'medium',"Which source of meaning refers to what I GIVE to life (creative values)?","Purposeful work",["Love and experience","Courage in difficulty","Pleasure"],"Purposeful work = what I GIVE. Love & experience = what I RECEIVE. Courage in difficulty = how I RESPOND to unavoidable suffering.");
+sit('spiritual',T.logo,'hard',"A patient with an incurable illness decides to face his suffering with dignity and courage. Which of Frankl’s sources of meaning is this?","Courage in difficulty (attitudinal values)",["Purposeful work (creative values)","Love and experience (experiential values)","Pleasure and comfort"],"Courage in difficulty = choosing one’s attitude toward unavoidable suffering (how I RESPOND).");
+sit('spiritual',T.logo,'hard',"While hiking, Ben is deeply moved by the beauty of nature and feels profoundly connected to the world around him. Which of Frankl’s sources of meaning is this?","Love and experience (experiential values)",["Purposeful work (creative values)","Courage in difficulty (attitudinal values)","Material success"],"Love & experience = what I RECEIVE from life: encountering truth, nature, art, or another person’s uniqueness.");
+mc('spiritual',T.logo,'medium',"According to Frankl’s central idea, which is the right question to ask?","“What is the meaning I give to life?”",["“What is the meaning of life?”","“How can I avoid all suffering?”","“How can I become happy?”"],"We should not ask what the meaning of life is; life asks us what meaning we give to it.");
+
+/* ---------- POLITICAL SELF ---------- */
+mc('political',T.pol,'medium',"Which describes a well-developed political self?","Participates in community and civic activities and recognizes one’s influence in creating social change",["Avoids political issues completely","Believes an individual cannot create change","Follows leaders without questioning"],"★ Exam Focus: A well-developed political self participates in community and civic activities and recognizes its influence in creating social change.");
+idq('political',T.pol,'medium',"The ability to understand and critically analyze social issues and government policies.","Political awareness",[],"★ Exam Focus: Political awareness is the ability to understand and critically analyze social issues and government policies.");
+mc('political',T.pol,'medium',"Under the 1987 Philippine Constitution, citizenship determined by blood (a Filipino father or mother) is called:","Jus sanguinis",["Naturalization","Elective citizenship","Dual citizenship"],"Jus sanguinis means citizenship is determined by blood: the father or mother is a Filipino citizen.");
+tf('political',T.pol,'hard',"A person born before January 17, 1973, of a Filipino mother may elect Philippine citizenship upon reaching the age of majority.",true,"True. This is the special case listed under Filipino citizenship in the 1987 Constitution.");
+mc('political',T.soc,'medium',"Which of the following is NOT one of the five influences on the political self?","The military",["Family","Church","Mass media"],"The five influences: Family, Education, Church, Mass Media, and Other People.");
+sit('political',T.soc,'medium',"Dan votes the way his group votes even though he has doubts, because he wants to fit in and avoid rejection. This is:","Normative influence",["Informational influence","Social-normative motivation to lead","Supplication"],"Normative influence = following to fit into a group, gain approval, and avoid rejection.");
+sit('political',T.soc,'medium',"Ella supports a candidate because she genuinely trusts what the candidate knows and says about public health. This is:","Informational influence",["Normative influence","Intimidation","Door-in-the-face"],"Informational influence = following because one genuinely trusts what the leader knows and says.");
+tf('political',T.soc,'medium',"Normative influence means following a leader because you genuinely trust what they know and say.",false,"False. That is informational influence. Normative influence is following to fit in, gain approval, and avoid rejection.");
+mc('political',T.lead,'medium',"Which are the three needs in McClelland’s Needs Theory (1960)?","Need for power, affiliation, and achievement",["Directive, supportive, and participative","Affective-identity, social-normative, and non-calculative","Intimacy, passion, and commitment"],"McClelland’s Needs Theory: Need for Power, Need for Affiliation, Need for Achievement.");
+sit('political',T.lead,'hard',"Camille leads the class project because she feels it is her duty and obligation, not because she enjoys it. Which of Chan & Drasgow’s motivations to lead is this?","Social-normative",["Affective-identity","Non-calculative","Achievement-oriented"],"Social-Normative = leading out of duty or obligation. Affective-Identity = natural enjoyment of leading.");
+idq('political',T.lead,'hard',"In Chan & Drasgow’s model, the motivation to lead without weighing personal costs and benefits.","Non-calculative",["noncalculative","non calculative"],"Non-calculative motivation to lead means leading without weighing personal costs and benefits.");
+mc('political',T.lead,'medium',"Which style in House’s Path-Goal Theory (1971) gives clear instructions?","Directive / instrumental",["Supportive","Participative","Achievement-oriented"],"Directive/Instrumental = clear instructions. Supportive = concern for well-being. Participative = consultative decisions. Achievement-oriented = ambitious goals.");
+sit('political',T.lead,'hard',"Before deciding on the project plan, a leader asks every team member for ideas and considers them. Which Path-Goal style is this?","Participative",["Directive / instrumental","Supportive","Achievement-oriented"],"Participative leadership involves consultative decision-making.");
+mc('political',T.fil,'medium',"Which of these is listed as a Filipino value that IMPEDES political progress?","Colonial mentality",["Bayanihan","Pakikipag-kapwa","Utang na loob"],"Impeding values: crab mentality, Filipino time, colonial mentality. Positive values: pakikipag-kapwa, bayanihan, hiya, bahala na, utang na loob.");
+sit('political',T.fil,'hard',"After a neighbor paid for her mother’s hospital bills, Rosa feels she must repay him and agrees to campaign for his relative. Which Filipino value is at work?","Utang na loob",["Bayanihan","Hiya","Bahala na"],"Utang na loob = debt of gratitude.");
+
+/* ---------- DIGITAL SELF ---------- */
+idq('digital',T.dig,'easy',"The version of oneself created, maintained, and presented across digital platforms and online interactions.","Digital self",["the digital self"],"★ Exam Focus: The digital self is the version of oneself created, maintained, and presented across digital platforms.");
+mc('digital',T.dig,'medium',"Which of Zhao’s characteristics means selectively displaying desired traits while hiding less appealing aspects?","Strategically constructed",["Edited and controlled","Idealized","Fragmented"],"Zhao (2005): Strategically constructed, Edited and controlled, Idealized, Fragmented.");
+sit('digital',T.dig,'hard',"Lena edits her photos, rewrites her caption three times, and adjusts her tone before posting. Which characteristic of the digital self is this?","Edited and controlled",["Strategically constructed","Idealized","Fragmented"],"Edited and controlled = deliberate manipulation of photos, captions, and tone before posting.");
+sit('digital',T.dig,'hard',"Paolo shows a professional side on LinkedIn, a funny side on TikTok, and a private side to close friends only. Which characteristic is this?","Fragmented",["Idealized","Edited and controlled","Strategically constructed"],"Fragmented = splitting identity into distinct versions across different apps and audiences.");
+mc('digital',T.dig,'medium',"Who identified four characteristics of the digital self (2005)?","Zhao",["Goffman","Valkenburg","Przybylski"],"Zhao (2005) described the digital self as strategically constructed, edited and controlled, idealized, and fragmented.");
+mc('digital',T.imp,'medium',"The five impression management strategies are credited to:","Erving Goffman",["Zhao","Viktor Frankl","Robert Sternberg"],"Erving Goffman: self-promotion, ingratiation, exemplification, supplication, and intimidation.");
+sit('digital',T.imp,'medium',"A student keeps posting about her awards and top grades to show that she is skilled and successful. Which strategy is this?","Self-promotion",["Ingratiation","Supplication","Exemplification"],"Self-promotion = projecting competence, skill, or success.");
+idq('digital',T.imp,'medium',"Impression management strategy of seeking to be liked through warmth and flattery.","Ingratiation",[],"Ingratiation = seeking to be liked through warmth and flattery.");
+sit('digital',T.imp,'hard',"A vlogger constantly posts about volunteering, donating, and living by strict ethics so people see him as morally worthy. Which strategy is this?","Exemplification",["Self-promotion","Ingratiation","Intimidation"],"Exemplification = presenting oneself as morally worthy, dedicated, and virtuous.");
+sit('digital',T.imp,'hard',"A user keeps posting about how helpless and overwhelmed he is, hoping others will sympathize and help him. Which strategy is this?","Supplication",["Ingratiation","Self-promotion","Intimidation"],"Supplication = gaining sympathy or help by appearing needy or vulnerable.");
+tf('digital',T.dis,'medium',"The online disinhibition effect is strongest when communication is anonymous and non-face-to-face.",true,"True. ★ Exam Focus: disinhibition is strongest when communication is anonymous and not face-to-face.");
+sit('digital',T.dis,'hard',"Using a fake account, a student leaves harsh, insulting comments on a classmate’s post. This is an example of:","Toxic disinhibition",["Benign disinhibition","Validation seeking","FOMO"],"★ Exam Focus: Toxic disinhibition = hostile, aggressive online actions.");
+sit('digital',T.dis,'hard',"A user honestly shares her struggle with anxiety online and receives kind, supportive replies. This is an example of:","Benign disinhibition",["Toxic disinhibition","Validation seeking","Echo chamber"],"Benign disinhibition = sharing honest vulnerability or prosocial kindness online.");
+mc('digital',T.haz,'medium',"Tying one’s self-esteem to likes, comments, and engagement metrics is called:","Validation seeking",["FOMO","Toxic disinhibition","Echo chamber"],"Validation seeking (Valkenburg et al., 2006) = tying self-esteem to likes, comments, and engagement.");
+sit('digital',T.haz,'hard',"Kate checks her phone constantly because she is afraid of missing what her friends are posting, and she feels anxious when she cannot check. This is:","FOMO (Fear of Missing Out)",["Validation seeking","Echo chamber","Exemplification"],"FOMO (Przybylski et al., 2013) = fear of missing out; compulsive screen checking heightens anxiety.");
+sit('digital',T.haz,'hard',"The algorithm keeps showing Dan only posts that match his existing views, so he rarely sees any other opinion. This is an example of:","An echo chamber / filter bubble",["Benign disinhibition","Validation seeking","Idealized self"],"Echo chambers and filter bubbles are algorithmic loops that trap users in content reinforcing narrow views.");
+tf('digital',T.haz,'medium',"Echo chambers expose users to many opposing viewpoints.",false,"False. Echo chambers and filter bubbles trap users in content that reinforces narrow views.");
+
+QUESTIONS.forEach((q,i)=>{q.id='q'+String(i+1).padStart(3,'0');});
+const QMAP={};QUESTIONS.forEach(q=>QMAP[q.id]=q);
+
+/* =====================================================================
+   3. FLASHCARDS  (term / clue on the front, answer on the back)
+   c(subject, topic, front, back)
+   ===================================================================== */
+const CARDS=[];
+const c=(s,t,f,b)=>CARDS.push({subject:s,topic:t,front:f,back:b});
+c('physical',T.her,"The concrete, tangible dimensions of the human body that can be directly observed and examined.","Physical self");
+c('physical',T.her,"Biological traits and genetic characteristics passed from parents to children.","Heredity");
+c('physical',T.her,"All external conditions affecting the physical, mental, and social development of a person.","Environment");
+c('physical',T.her,"Is the physical self shaped by genes alone?","No. It is influenced by both heredity and environment.");
+c('physical',T.her,"The 23rd pair of chromosomes and what it decides.","Sex chromosomes: XX = female, XY = male.");
+c('physical',T.aud,"The egocentric adolescent belief that one is constantly watched and evaluated by others.","Imaginary audience");
+c('physical',T.endo,"Regulates bodily functions and secretes hormones that control the pituitary gland.","Hypothalamus");
+c('physical',T.endo,"The “master gland” that regulates other endocrine glands and orchestrates puberty.","Pituitary gland");
+c('physical',T.endo,"Releases melatonin (sleep-wake cycle, circadian rhythm).","Pineal gland");
+c('physical',T.endo,"Produces hormones controlling metabolism and growth.","Thyroid gland");
+c('physical',T.endo,"Regulates calcium levels in the bloodstream.","Parathyroid gland");
+c('physical',T.endo,"Contributes to the development of the immune system.","Thymus");
+c('physical',T.endo,"Primary hormone for male secondary sex characteristics (deeper voice, facial hair).","Testosterone");
+c('physical',T.endo,"Primary hormone for female secondary sex characteristics (breast enlargement, menstruation).","Estrogen");
+c('physical',T.endo,"Which hormone facilitates milk production, and which promotes uterine contractions and maternal bonding?","Prolactin = milk production after birth.\nOxytocin = uterine contractions and maternal bonding.");
+c('physical',T.sexc,"Anatomical traits present at birth and directly involved in reproduction.","Primary sex characteristics\n(e.g., penis, testes, ovaries, uterus)");
+c('physical',T.sexc,"Traits that develop at puberty and are not directly involved in reproduction.","Secondary sex characteristics\n(e.g., voice deepening, body hair, breast development)");
+c('physical',T.per,"Subjective mental picture of one’s physical appearance.","Self-image\nExample: “I am an attractive and desirable person.”");
+c('physical',T.per,"Overall cognitive construction and beliefs about one’s nature and traits.","Self-concept\nExample: “I am a strong woman.”");
+c('physical',T.per,"Social, categorical, or geographic identifiers.","Self-identity\nExample: “I am living in Quezon City.” / “I am a psychology student.”");
+c('physical',T.per,"The evaluative assessment of personal self-worth.","Self-esteem\nNegative body image from strict beauty standards lowers it.");
+c('physical',T.aud,"Why is exercise an essential self-care practice?","It improves concentration and promotes better mood.");
+c('sexual',T.hist,"Era: the male was the dominant symbol of fertility; women were subordinate property with no legal rights.","Ancient Greece");
+c('sexual',T.hist,"Era: Catholic hegemony called all non-procreative acts evil; women were Temptress (Eve) or Virgin (Mary).","Middle Ages");
+c('sexual',T.hist,"Era (16th C.): challenged church corruption; sex is a natural drive that strengthens marriage; priests may marry.","Protestant Reformation");
+c('sexual',T.hist,"Era (17th–18th C.): strict religious and moral crackdown on non-marital intimacy.","Puritan Era");
+c('sexual',T.hist,"Era (1837–1901): commercial prostitution grew; homosexuality branded a threat to social order; female pleasure suppressed.","Victorian Era");
+c('sexual',T.evo,"Evolutionary perspective: what attracts men and what attracts women?","Men: curvy bodies and developed breasts (health, lactation capacity).\nWomen: taller, protective partners (physical defense and survival).");
+c('sexual',T.tri,"Biological classification based on chromosomes, gonads, and anatomy.","Sex (male, female, intersex)");
+c('sexual',T.tri,"Born with traits that do not fit typical male/female definitions.","Intersex");
+c('sexual',T.tri,"Internal, innate sense of self as a gender vs. outward presentation (clothing, grooming, behavior).","Gender identity = internal.\nGender expression = outward.");
+c('sexual',T.tri,"Direction of romantic and physical attraction.","Sexual orientation\n(heterosexual, homosexual, bisexual, pansexual, asexual)");
+c('sexual',T.src,"The 5 phases of the sexual response cycle (Masters & Johnson), in order.","Desire → Arousal → Plateau → Orgasm → Resolution");
+c('sexual',T.src,"Phase of peak sexual tension; pre-ejaculatory fluid is released.","Plateau\nThis fluid often contains active sperm, so the “pull-out” method is highly unreliable.");
+c('sexual',T.src,"Phase in which body systems return to an unaroused baseline.","Resolution");
+c('sexual',T.src,"Freud’s concept of pleasure-producing body areas (primary vs. secondary).","Erogenous zones\nPrimary = genital; secondary = lips, neck, ears, breasts.\nArousal does not equal consent.");
+c('sexual',T.love,"The 3 phases of romantic love.","Lust → Attraction → Attachment");
+c('sexual',T.love,"Lee’s love style: passionate, romantic, physical and emotional.","Eros");
+c('sexual',T.love,"Lee’s love style: altruistic, selfless, unconditional.","Agape");
+c('sexual',T.love,"Lee’s love style: based on deep friendship and comfort.","Storge");
+c('sexual',T.love,"Lee’s love style: game-playing, casual, uncommitted.","Ludus");
+c('sexual',T.love,"Lee’s love style: obsessive, possessive, jealous, driven by insecurity.","Mania");
+c('sexual',T.love,"Lee’s love style: practical, logical, compatibility-driven.","Pragma");
+c('sexual',T.love,"The 3 components of Sternberg’s Triangular Theory of Love.","Intimacy (warmth) + Passion (physical attraction) + Commitment (decision to maintain love)");
+c('sexual',T.love,"Sternberg: Intimacy only / Passion only / Commitment only.","Liking / Infatuation / Empty love");
+c('sexual',T.love,"Sternberg: Intimacy + Passion / Intimacy + Commitment / Passion + Commitment.","Romantic love / Companionate love / Fatuous love");
+c('sexual',T.love,"Sternberg: Intimacy + Passion + Commitment.","Consummate love (the ideal, complete form)");
+c('sexual',T.love,"The 5 love languages.","Quality Time, Physical Touch, Acts of Service, Words of Affirmation, Receiving Gifts");
+c('sexual',T.stis,"Key facts about STIs/STDs and protection.","Over 30 infectious agents; spread by sexual contact, blood, or mother to child.\nPreventable and treatable, but commonly asymptomatic.\nAbstinence is 100% effective; condoms are single-use.");
+c('material',T.jam,"William James: “A man’s self is the sum total of what he can ______.”","call his\nIncludes body, clothes, immediate family, home, ancestors, reputation, bank account — NOT religion.");
+c('material',T.con,"Innermost and most personal part of the material self.","The body");
+c('material',T.con,"Material self constituent: a form of self-expression conveying style and personal taste.","Clothes");
+c('material',T.con,"Extensions of the self that can express social status, prestige, and pride.","Immediate family and pets");
+c('material',T.con,"“The earliest nest of our selfhood.”","Home");
+c('material',T.mat,"We perceive tangible objects as extensions of our identity (though they don’t literally become part of us).","Psychological ownership");
+c('material',T.mat,"True or false: possessions give long-lasting happiness; loss can affect mental health; they can motivate people.","Possessions do NOT give long-lasting happiness (false).\nLoss or lack can disrupt mental health (true).\nThey can motivate people to work harder (true).");
+c('material',T.mat,"The negative effect of a strong desire for material possessions.","Materialism");
+c('material',T.mat,"An individual excessively concerned with acquiring possessions.","Materialistic person");
+c('material',T.mat,"The ideology that increasing consumption of goods and services is always desirable.","Consumerism\nLower materialism = higher genuine life satisfaction (“Consume less, live more”).");
+c('material',T.pers,"Basic physiological needs in Maslow’s hierarchy.","Breathing, food, water, sleep, homeostasis, excretion.\nSex is listed biologically, but humans can survive without it.");
+c('material',T.pers,"Agree to a small request first → agree to a bigger request later.","Foot-in-the-door");
+c('material',T.pers,"Extravagant request first → reasonable compromise request gets accepted.","Door-in-the-face");
+c('spiritual',T.spi,"The innermost working of a person’s mind, behavior, beliefs, and morals.","Spiritual self");
+c('spiritual',T.spi,"Belief vs. practice.","Belief = internal faith and moral framework.\nPractice = external rituals and ceremonies (e.g., burning incense, Holy Communion).");
+c('spiritual',T.spi,"What happens when practice is inconsistent with belief?","Internal conflict. The person will either abandon the belief or act according to it.");
+c('spiritual',T.spi,"A person’s definition of what is right and wrong.","Morals");
+c('spiritual',T.spi,"Being free from materialistic attachments and physical desires while seeking transcendence.","A principle of spirituality");
+c('spiritual',T.spi,"A spiritually healthy person…","Finds inner peace and purpose through faith or reflection.");
+c('spiritual',T.spi,"Belief in and worship of multiple gods.","Polytheism");
+c('spiritual',T.spi,"Contemplative practices.","Mindfulness, prayer, and journaling");
+c('spiritual',T.ind,"Indigenous healers, shamans, and leaders; first psychologists in the Philippines.","Babaylans");
+c('spiritual',T.ind,"Indigenous soul concepts: kaluluwa, dungan, guinhawa, kakambal.","Kaluluwa = soul\nDungan = vital spirit / willpower\nGuinhawa = breath / energy\nKakambal = spiritual double");
+c('spiritual',T.ind,"Kulam and barang.","Kulam = witchcraft\nBarang = sorcery using insects or objects");
+c('spiritual',T.rit,"Rituals patterned after sacred myths and repeating them.","Imitative rituals");
+c('spiritual',T.rit,"Rituals focused on prohibitions, taboos, and restrictions.","Negative rituals");
+c('spiritual',T.rit,"The earliest historical form of religion.","Sacrificial rituals");
+c('spiritual',T.rit,"Rituals that mark transitions between life stages (birth, marriage, death).","Life crisis rituals");
+c('spiritual',T.ebr,"Ebralinag vs. Superintendent of Cebu: the ruling.","The Court ruled in favor of the students; exercise of religious freedom is of paramount importance.");
+c('spiritual',T.logo,"Psychotherapy by Viktor Frankl centered on finding meaning as the primary human motivation.","Logotherapy\nFormulated from Frankl’s experiences as a Holocaust survivor.");
+c('spiritual',T.logo,"Meaning vs. happiness in Logotherapy.","Meaning ≠ Happiness. A person can suffer deeply and still find profound meaning.");
+c('spiritual',T.logo,"Frankl’s 1st source of meaning: Purposeful Work (Creative Values).","What I GIVE to life; deciding why actions matter.");
+c('spiritual',T.logo,"Frankl’s 2nd source of meaning: Love & Experience (Experiential Values).","What I RECEIVE from life: truth, nature, art, or another person’s uniqueness.");
+c('spiritual',T.logo,"Frankl’s 3rd source of meaning: Courage in Difficulty (Attitudinal Values).","How I RESPOND to unavoidable suffering; choosing my attitude in hardship.");
+c('spiritual',T.logo,"Frankl’s central question.","Not “What is the meaning of life?” but “What is the meaning I give to life?”");
+c('political',T.pol,"A well-developed political self…","Participates in community and civic activities and recognizes one’s influence in creating social change.");
+c('political',T.pol,"The ability to understand and critically analyze social issues and government policies.","Political awareness");
+c('political',T.pol,"Citizenship determined by blood (father or mother is a Filipino).","Jus sanguinis");
+c('political',T.pol,"Special case under the 1987 Constitution.","Born before January 17, 1973, of Filipino mothers, who elect Philippine citizenship upon reaching majority age.");
+c('political',T.soc,"The 5 influences on the political self.","Family, Education, Church, Mass Media, Other People");
+c('political',T.soc,"Following to fit in, gain approval, and avoid rejection.","Normative influence");
+c('political',T.soc,"Following because you genuinely trust what the leader knows and says.","Informational influence");
+c('political',T.lead,"McClelland’s Needs Theory (1960).","Need for Power, Need for Affiliation, Need for Achievement");
+c('political',T.lead,"Chan & Drasgow’s Motivation to Lead (2001).","Affective-Identity (enjoy leading)\nSocial-Normative (duty/obligation)\nNon-calculative (no weighing of costs/benefits)");
+c('political',T.lead,"House’s Path-Goal Theory (1971) styles.","Directive/Instrumental (clear instructions)\nSupportive (concern for well-being)\nParticipative (consultative decisions)\nAchievement-Oriented (ambitious goals)");
+c('political',T.fil,"Filipino values that impede politics.","Crab mentality, Filipino time, colonial mentality");
+c('political',T.fil,"Positive Filipino values in politics.","Pakikipag-kapwa = fellowship / shared identity\nBayanihan = communal cooperation\nHiya = propriety\nBahala na = resilient surrender\nUtang na loob = debt of gratitude");
+c('digital',T.dig,"The version of oneself created, maintained, and presented across digital platforms.","Digital self");
+c('digital',T.dig,"Zhao’s (2005) 4 characteristics of the digital self.","Strategically constructed, Edited and controlled, Idealized, Fragmented");
+c('digital',T.dig,"Selectively displaying desired traits while hiding less appealing aspects.","Strategically constructed");
+c('digital',T.dig,"Deliberate manipulation of photos, captions, and tone before posting.","Edited and controlled");
+c('digital',T.dig,"Presenting a polished, optimized version of the self.","Idealized");
+c('digital',T.dig,"Splitting identity into distinct versions across different apps and audiences.","Fragmented");
+c('digital',T.imp,"Goffman’s 5 impression management strategies.","Self-promotion, Ingratiation, Exemplification, Supplication, Intimidation");
+c('digital',T.imp,"Projecting competence, skill, or success.","Self-promotion");
+c('digital',T.imp,"Seeking to be liked through warmth and flattery.","Ingratiation");
+c('digital',T.imp,"Presenting oneself as morally worthy, dedicated, and virtuous.","Exemplification");
+c('digital',T.imp,"Gaining sympathy or help by appearing needy or vulnerable.","Supplication");
+c('digital',T.imp,"Projecting power or force to instill fear or respect.","Intimidation");
+c('digital',T.dis,"The loosening of social restraints online due to perceived digital distance. When is it strongest?","Online disinhibition effect\nStrongest when communication is anonymous and non-face-to-face.");
+c('digital',T.dis,"Sharing honest vulnerability or prosocial kindness online.","Benign disinhibition");
+c('digital',T.dis,"Hostile, aggressive online actions (e.g., insulting comments from a fake account).","Toxic disinhibition");
+c('digital',T.haz,"Tying self-esteem to likes, comments, and engagement (Valkenburg et al., 2006).","Validation seeking");
+c('digital',T.haz,"Fear of missing out; compulsive screen checking that heightens anxiety (Przybylski et al., 2013).","FOMO");
+c('digital',T.haz,"Algorithmic loops trapping users in content that reinforces narrow views.","Echo chambers and filter bubbles");
+c('digital',T.haz,"The digital rule.","“The internet remembers what you post, but you get to choose what it remembers you for.”");
+CARDS.forEach((cd,i)=>{cd.id='c'+String(i+1).padStart(3,'0');});
+const CMAP={};CARDS.forEach(cd=>CMAP[cd.id]=cd);
+function qToCard(q){
+ const front=q.type==='tf'?'True or False?\n'+q.question:q.question;
+ return {id:q.id,subject:q.subject,topic:q.topic,front,back:correctText(q,true)+'\n\n'+q.explanation};
+}
+
+/* =====================================================================
+   4. SOURCE NOTES  (unclear or questionable items in the reviewer)
+   ===================================================================== */
+const NOTES=[
+ ['Naturalization wording','The reviewer says naturalization is “granted citizenship by operation of natural law.” This wording looks unclear or inaccurate (naturalization is normally granted through a legal process). No question was made from it. Please confirm with your professor’s lecture.'],
+ ['Teen pregnancy statistics','The reviewer gives numbers (over 1 million, 85% unplanned, 1 in 5 fathers adults, 5 times more likely) without any source or year. They were not used in the question bank.'],
+ ['Victorian Era clitoris statement','The line about female anatomy being “discovered late” is oddly phrased and its historical claim is unclear. No question was made from it. The other Victorian facts were used.'],
+ ['“Deep Filter Bubbles” wording','The phrase “Echo Chambers & Deep Filter Bubbles … rather than self-chosen identities” is unclear. Questions only use the clear part: algorithmic loops that reinforce narrow views.'],
+ ['Orgasm and refractory period','The reviewer states a general rule (men: refractory period; women: multiple orgasms). Real experiences vary, so the one question on this is worded “According to the reviewer.”'],
+ ['Chromosomes under “Ancient Greece”','“Chromosomal sex is determined by the father’s sperm (X or Y)” sits under Ancient Greece, but it is a modern biological fact, not a feature of that era. No question links the two.'],
+ ['Spirituality vs. Religiosity','The heading compares them, but the reviewer only describes spirituality. No question asks you to define religiosity.'],
+ ['Spiritual healthiness & Maslow','These are very short in the reviewer, so they have only one question each. Add your lecture notes if your professor went deeper.']
+];
+
+/* =====================================================================
+   5. HELPERS & STORAGE
+   ===================================================================== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function weightedOrder(list,wf){return list.map(x=>({x,k:Math.pow(Math.random(),1/Math.max(wf(x),0.05))})).sort((a,b)=>b.k-a.k).map(o=>o.x);}
+function norm(s){return String(s==null?'':s).toLowerCase().trim().replace(/^(the|a|an)\s+/,'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');}
+function checkId(q,input){const n=norm(input);if(!n)return false;return [q.answer].concat(q.alt||[]).some(a=>norm(a)===n);}
+function isCorrect(q,ans){if(q.type==='id')return checkId(q,ans);return ans===q.answer;}
+const isBlank=it=>it.ans===null||it.ans===undefined||(typeof it.ans==='string'&&!it.ans.trim());
+function correctText(q,short){
+ if(q.type==='tf')return q.answer?'True':'False';
+ if(q.type==='id')return q.answer+(!short&&q.alt&&q.alt.length?' (also accepted: '+q.alt.join(', ')+')':'');
+ return q.options[q.answer];
+}
+function ansText(q,ans){
+ if(q.type==='tf')return ans===true?'True':ans===false?'False':'— no answer —';
+ if(q.type==='id')return String(ans||'').trim()||'— no answer —';
+ return ans===null||ans===undefined?'— no answer —':q.options[ans];
+}
+const fp=n=>Number.isInteger(n)?n+'%':n.toFixed(1)+'%';
+const mmss=s=>{s=Math.max(0,Math.floor(s));return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');};
+const dur=s=>{s=Math.round(s);const m=Math.floor(s/60);return m?m+' min '+(s%60)+' s':s+' s';};
+const fmtDate=t=>new Date(t).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+
+const KEY='uts_reviewer_v1';
+let storageOK=true;
+const blank=()=>({theme:null,q:{},mistakes:{},cleared:0,exams:[],cards:{},active:null,recall:false});
+function loadStore(){try{const r=localStorage.getItem(KEY);if(r)return Object.assign(blank(),JSON.parse(r));}catch(e){storageOK=false;}return blank();}
+let store=loadStore();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(store));}catch(e){storageOK=false;}}
+function prune(){
+ Object.keys(store.q).forEach(id=>{if(!QMAP[id])delete store.q[id];});
+ Object.keys(store.mistakes).forEach(id=>{if(!QMAP[id])delete store.mistakes[id];});
+ Object.keys(store.cards).forEach(id=>{if(!CMAP[id]&&!QMAP[id])delete store.cards[id];});
+ if(store.active&&store.active.items.some(i=>!QMAP[i.id]))store.active=null;
+}
+prune();
+
+function record(q,ok){
+ const st=store.q[q.id]||(store.q[q.id]={r:0,w:0,streak:0,last:0});
+ let cleared=false;const m=store.mistakes[q.id];
+ if(ok){st.r++;st.streak++;if(m){m.ok=(m.ok||0)+1;if(m.ok>=2){delete store.mistakes[q.id];store.cleared=(store.cleared||0)+1;cleared=true;}}}
+ else{st.w++;st.streak=0;store.mistakes[q.id]={ok:0,added:m?m.added:Date.now(),times:(m?m.times||1:0)+1};}
+ st.last=Date.now();save();return {cleared};
+}
+const snapshot=id=>JSON.stringify({q:store.q[id]||null,m:store.mistakes[id]||null,c:store.cleared||0});
+function restore(id,snap){const s=JSON.parse(snap);if(s.q)store.q[id]=s.q;else delete store.q[id];if(s.m)store.mistakes[id]=s.m;else delete store.mistakes[id];store.cleared=s.c;save();}
+const qWeight=q=>{const st=store.q[q.id];let w=1;if(store.mistakes[q.id])w+=3;if(st){w+=Math.min(st.w,4)*0.4;if(st.streak>=3&&!store.mistakes[q.id])w*=0.5;}else w+=0.3;return w;};
+const mistakeIds=()=>Object.keys(store.mistakes).filter(id=>QMAP[id]);
+
+/* validation of the bank (shown in Source Notes) */
+function validate(){
+ const issues=[],seen=new Set();
+ QUESTIONS.forEach(q=>{
+  const k=q.question.trim().toLowerCase();if(seen.has(k))issues.push('Duplicate question: '+q.id);seen.add(k);
+  if(!q.question||!q.explanation)issues.push('Empty text: '+q.id);
+  if(!SUBJECTS[q.subject])issues.push('Unknown subject: '+q.id);
+  if(q.type==='mcq'||q.type==='sit'){if(!q.options||q.options.length!==4||new Set(q.options.map(norm)).size!==4||!(q.answer>=0&&q.answer<4))issues.push('Bad options: '+q.id);}
+  else if(q.type==='tf'){if(typeof q.answer!=='boolean')issues.push('Bad true/false key: '+q.id);}
+  else if(q.type==='id'){if(!q.answer)issues.push('Missing answer: '+q.id);}
+  else issues.push('Unknown type: '+q.id);
+ });
+ return issues;
+}
+
+/* =====================================================================
+   6. UI SHELL
+   ===================================================================== */
+const IC={
+ home:'<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+ book:'<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+ clip:'<path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/>',
+ layers:'<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
+ alert:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+ info:'<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+ moon:'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+ sun:'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/>'
+};
+const ic=n=>'<svg class="i" viewBox="0 0 24 24" aria-hidden="true">'+IC[n]+'</svg>';
+const NAV=[['home','Dashboard','home'],['study','Study','book'],['exam','Mock exam','clip'],['cards','Flashcards','layers'],['mistakes','Mistakes','alert'],['notes','Source notes','info']];
+
+let view='home',ui={},timer=null;
+const views={home:vHome,study:vStudy,exam:vExam,cards:vCards,mistakes:vMistakes,notes:vNotes};
+
+function setTheme(t){document.documentElement.dataset.theme=t;const lbl=(t==='dark'?ic('sun')+'Light mode':ic('moon')+'Dark mode');$('#themeBtn').innerHTML=lbl;$('#themeBtn2').innerHTML=t==='dark'?ic('sun'):ic('moon');}
+function renderNav(){
+ const cur=(view==='study'&&ui.src==='mistakes')?'mistakes':view,mc=mistakeIds().length;
+ const item=(n,cls)=>'<button class="'+cls+(cur===n[0]?' on':'')+'" data-act="nav" data-v="'+n[0]+'"'+(cur===n[0]?' aria-current="page"':'')+'>'+ic(n[2])+'<span>'+n[1]+'</span>'+(n[0]==='mistakes'&&mc?'<em class="badge">'+mc+'</em>':'')+'</button>';
+ $('#nav').innerHTML=NAV.map(n=>item(n,'nv')).join('');
+ $('#tabbar').innerHTML=NAV.map(n=>item(n,'tb')).join('');
+}
+function render(){
+ $('#view').innerHTML=views[view]();
+ renderNav();afterRender();
+}
+function go(v){stopTimer();view=v;ui={};render();window.scrollTo(0,0);}
+function afterRender(){
+ if(view==='exam'&&ui.stage==='run'&&store.active){if(!timer)startTimer();}else stopTimer();
+ const idin=$('#idin');
+ if(idin&&!idin.disabled){idin.focus();const n=idin.value.length;idin.setSelectionRange(n,n);}
+ else if(view==='study'&&ui.stage==='q'&&ui.answered){const b=$('#nextbtn');if(b)b.focus();}
+}
+function ask(title,msg,okText,onOk,danger){
+ const d=document.createElement('div');d.className='overlay';
+ d.innerHTML='<div class="dlg" role="dialog" aria-modal="true" aria-label="'+esc(title)+'"><h3>'+title+'</h3><p>'+msg+'</p><div class="row sp"><button class="btn" data-x="no">Cancel</button><button class="btn '+(danger?'danger':'pri')+'" data-x="ok">'+okText+'</button></div></div>';
+ d.addEventListener('click',e=>{const x=e.target.dataset.x;if(x==='ok'){d.remove();onOk();}else if(x==='no'||e.target===d)d.remove();});
+ document.body.appendChild(d);d.querySelector('[data-x=no]').focus();
+}
+const tagsHTML=(q,full)=>'<div class="tags"><span class="chip sub" style="--c:'+SUBJECTS[q.subject].color+'">'+esc(SUBJECTS[q.subject].short)+'</span>'+(full?'<span class="chip">'+esc(q.topic)+'</span><span class="chip d-'+q.difficulty+'">'+q.difficulty+'</span><span class="chip">'+TYPE_LABEL[q.type]+'</span>':'<span class="chip">'+TYPE_LABEL[q.type]+'</span>')+'</div>';
+const bar=(p,color)=>'<div class="bar"'+(color?' style="--c:'+color+'"':'')+'><i style="width:'+Math.max(0,Math.min(100,p))+'%"></i></div>';
+
+/* input block shared by study and exam */
+function inputHTML(q,o){
+ if(q.type==='id'){
+  const v=o.sel==null?'':o.sel;
+  return '<div class="idbox"><input id="idin" class="txt" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Your answer" placeholder="Type your answer…" value="'+esc(v)+'"'+(o.locked?' disabled':'')+'>'+(o.mode==='study'&&!o.locked?'<button class="btn pri" data-act="idsubmit">Check answer</button>':'')+'</div>'+(o.mode==='exam'?'<p class="note">Spelling counts; capitalization and spacing do not.</p>':'');
+ }
+ const opts=q.type==='tf'?[{t:'True',v:true},{t:'False',v:false}]:o.ord.map(i=>({t:q.options[i],v:i}));
+ return '<div class="opts">'+opts.map((p,k)=>{
+  let cls='opt';if(o.sel===p.v)cls+=' sel';
+  if(o.locked){if(isCorrect(q,p.v))cls+=' right';else if(o.sel===p.v)cls+=' wrong';}
+  return '<button class="'+cls+'" data-act="pick" data-v="'+p.v+'" data-k="'+k+'"'+(o.locked?' disabled':'')+'><span class="ltr">'+(q.type==='tf'?(p.v?'T':'F'):'ABCD'[k])+'</span><span>'+esc(p.t)+'</span></button>';
+ }).join('')+'</div>';
+}
+const parseVal=s=>s==='true'?true:s==='false'?false:Number(s);
+
+/* =====================================================================
+   7. DASHBOARD
+   ===================================================================== */
+function subjStats(){
+ return Object.keys(SUBJECTS).map(k=>{
+  const qs=QUESTIONS.filter(q=>q.subject===k);let r=0,w=0,mastered=0;
+  qs.forEach(q=>{const st=store.q[q.id];if(st){r+=st.r;w+=st.w;if(st.streak>=2&&!store.mistakes[q.id])mastered++;}});
+  return {k,total:qs.length,r,w,att:r+w,acc:(r+w)?r/(r+w):null,mastered,mist:qs.filter(q=>store.mistakes[q.id]).length};
+ });
+}
+function hotTopics(){
+ const m={};mistakeIds().forEach(id=>{const t=QMAP[id].topic;m[t]=(m[t]||0)+1;});
+ return Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,3);
+}
+function recommendHTML(ss){
+ if(!ss.some(s=>s.att>0))return '<div class="rec">You haven’t answered anything yet. Start with <b>Study mode</b> on one subject, then try a mock exam.</div>';
+ const att=ss.filter(s=>s.att>=5).sort((a,b)=>a.acc-b.acc);
+ let out='';
+ if(att.length){
+  const w=att[0];
+  if(w.acc<0.8)out+='<div class="rec warn">Your weakest subject so far is <b>'+SUBJECTS[w.k].name+'</b> ('+Math.round(w.acc*100)+'% accuracy). Review it in Study mode next.</div>';
+  else out+='<div class="rec good">All subjects you practiced are at 80% or higher. Take a full mock exam to test your recall under pressure.</div>';
+ }else out+='<div class="rec">Answer at least 5 questions in a subject to get a subject-based recommendation.</div>';
+ const hot=hotTopics();
+ if(hot.length)out+='<div class="rec warn">Topics with the most unresolved mistakes: '+hot.map(h=>'<b>'+esc(h[0])+'</b> ('+h[1]+')').join(', ')+'.</div>';
+ const untouched=ss.filter(s=>s.att===0).map(s=>SUBJECTS[s.k].short);
+ if(untouched.length)out+='<div class="rec">Not started yet: '+untouched.join(', ')+'.</div>';
+ return out;
+}
+function vHome(){
+ const ss=subjStats(),total=QUESTIONS.length;
+ const attempted=Object.keys(store.q).length,R=ss.reduce((a,s)=>a+s.r,0),W=ss.reduce((a,s)=>a+s.w,0);
+ const acc=R+W?Math.round(R/(R+W)*100)+'%':'—';
+ const best=store.exams.length?fp(Math.max(...store.exams.map(e=>e.pct))):'—';
+ const mast=ss.reduce((a,s)=>a+s.mastered,0),ms=mistakeIds().length;
+ let h='<h1>UTS Final Exam Reviewer</h1><p class="lead">'+total+' questions and '+CARDS.length+' flashcards from your reviewer. Pick a mode to start.</p>';
+ if(!storageOK)h+='<div class="warnbox">Your browser is blocking local storage, so progress cannot be saved. Try opening this file in a normal (non-private) browser window.</div>';
+ if(store.active)h+='<div class="card"><h2>Exam in progress</h2><p>You have an unfinished mock exam ('+store.active.items.filter(i=>!isBlank(i)).length+' of '+store.active.items.length+' answered).</p><div class="row"><button class="btn pri" data-act="resume">Resume exam</button></div></div>';
+ h+='<div class="grid g4" style="margin-bottom:18px"><div class="tile"><b>'+attempted+' / '+total+'</b><span>Questions attempted</span></div><div class="tile"><b>'+mast+'</b><span>Mastered (2 right in a row)</span></div><div class="tile"><b>'+acc+'</b><span>Overall accuracy</span></div><div class="tile"><b>'+best+'</b><span>Best exam score</span></div></div>';
+ h+='<div class="grid g2"><button class="card" data-act="nav" data-v="study" style="text-align:left;cursor:pointer;color:inherit;font:inherit"><h2>Study mode</h2><p class="note" style="margin:0">One question at a time with instant feedback and explanations.</p></button><button class="card" data-act="nav" data-v="exam" style="text-align:left;cursor:pointer;color:inherit;font:inherit"><h2>Mock final exam</h2><p class="note" style="margin:0">Timed or untimed exam with no answers shown until you submit.</p></button><button class="card" data-act="nav" data-v="cards" style="text-align:left;cursor:pointer;color:inherit;font:inherit"><h2>Flashcards</h2><p class="note" style="margin:0">Flip cards and sort them into “I know this” and “Need more practice.”</p></button><button class="card" data-act="nav" data-v="mistakes" style="text-align:left;cursor:pointer;color:inherit;font:inherit"><h2>Review my mistakes ('+ms+')</h2><p class="note" style="margin:0">Practice only the questions you got wrong until you master them.</p></button></div>';
+ h+='<div class="card"><h2>Progress by subject</h2>'+ss.map(s=>'<div class="subj-row"><div class="nm">'+esc(SUBJECTS[s.k].short)+'</div>'+bar(s.mastered/s.total*100,SUBJECTS[s.k].color)+'<div class="vl">'+s.mastered+'/'+s.total+' mastered'+(s.acc!==null?' · '+Math.round(s.acc*100)+'% acc.':'')+'</div></div>').join('')+'</div>';
+ h+='<div class="card"><h2>What to study next</h2>'+recommendHTML(ss)+'</div>';
+ if(store.exams.length){
+  h+='<div class="card"><h2>Recent mock exams</h2><div class="scroll"><table><thead><tr><th>Date</th><th>Questions</th><th>Score</th><th>Time</th><th></th></tr></thead><tbody>'+store.exams.slice(0,8).map(e=>'<tr><td>'+fmtDate(e.ts)+'</td><td>'+e.n+'</td><td><b>'+fp(e.pct)+'</b> ('+e.c+'/'+e.n+')</td><td>'+dur(e.time)+'</td><td><button class="btn sm" data-act="viewexam" data-id="'+e.id+'">Review</button></td></tr>').join('')+'</tbody></table></div></div>';
+ }
+ return h;
+}
+
+/* =====================================================================
+   8. STUDY MODE (also used for "practice my mistakes")
+   ===================================================================== */
+const topicsFor=s=>[...new Set(QUESTIONS.filter(q=>s==='all'||q.subject===s).map(q=>q.topic))];
+function vStudy(){
+ if(ui.stage==='q')return studyQ();
+ if(ui.stage==='done')return studyDone();
+ const opts=Object.keys(SUBJECTS).map(k=>'<option value="'+k+'">'+esc(SUBJECTS[k].name)+'</option>').join('');
+ return '<h1>Study mode</h1><p class="lead">Answer one question at a time and learn from the explanation right away.</p><div class="card form">'+
+ '<div class="two"><label>Subject<select id="f-subj" data-ch="filt"><option value="all">All subjects</option>'+opts+'</select></label>'+
+ '<label>Topic<select id="f-topic" data-ch="filt"><option value="all">All topics</option>'+topicsFor('all').map(t=>'<option>'+esc(t)+'</option>').join('')+'</select></label></div>'+
+ '<div class="two"><label>Difficulty<select id="f-diff" data-ch="filt"><option value="all">All levels</option><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label>'+
+ '<label>Question type<select id="f-type" data-ch="filt"><option value="all">All types</option><option value="mcq">Multiple choice</option><option value="tf">True / False</option><option value="id">Identification</option><option value="sit">Situational</option></select></label></div>'+
+ '<label>Number of questions<select id="f-len"><option value="10">10</option><option value="20" selected>20</option><option value="40">40</option><option value="all">All matching</option></select></label>'+
+ '<label class="chk"><input type="checkbox" id="f-pri" checked> Show my weak questions more often</label>'+
+ '<label class="chk"><input type="checkbox" id="f-recall"'+(store.recall?' checked':'')+'> Active recall: hide the choices until I click “Show choices”</label>'+
+ '<div class="row" style="margin:0"><button class="btn pri" data-act="startstudy" id="f-go">Start studying</button><span class="note" id="f-count" style="margin:0"></span></div></div>';
+}
+function filteredQs(){
+ const s=$('#f-subj').value,t=$('#f-topic').value,d=$('#f-diff').value,y=$('#f-type').value;
+ return QUESTIONS.filter(q=>(s==='all'||q.subject===s)&&(t==='all'||q.topic===t)&&(d==='all'||q.difficulty===d)&&(y==='all'||q.type===y));
+}
+function updateFilter(el){
+ if(el&&el.id==='f-subj'){const tp=$('#f-topic');tp.innerHTML='<option value="all">All topics</option>'+topicsFor(el.value).map(t=>'<option>'+esc(t)+'</option>').join('');}
+ const n=filteredQs().length;$('#f-count').textContent=n+' matching question'+(n===1?'':'s');$('#f-go').disabled=!n;
+}
+function startStudy(list,src){ui={stage:'q',src,list,i:0,correct:0,wrongs:[],cleared:0};prepQ();render();window.scrollTo(0,0);}
+function prepQ(){const q=ui.list[ui.i];ui.ord=q.options?shuffle(q.options.map((_,i)=>i)):[];ui.sel=null;ui.answered=false;ui.revealed=false;ui.last=null;}
+function studyQ(){
+ const q=ui.list[ui.i],n=ui.list.length,locked=ui.answered;
+ const hidden=!locked&&store.recall&&q.type!=='id'&&!ui.revealed;
+ let h='<div class="row sp" style="margin:0 0 8px"><b>'+(ui.src==='mistakes'?'Practicing my mistakes':'Study mode')+'</b><button class="btn sm" data-act="quitstudy">End session</button></div>';
+ h+=bar((ui.i+(locked?1:0))/n*100)+'<div class="meta"><span>Question '+(ui.i+1)+' of '+n+'</span><span>Score: '+ui.correct+' / '+(ui.i+(locked?1:0))+'</span></div>';
+ h+='<div class="card">'+tagsHTML(q,true)+'<p class="qtext">'+esc(q.question)+'</p>';
+ h+=hidden?'<div class="recall">Try to recall the answer first…<br><button class="btn pri" data-act="reveal">Show choices</button></div>':inputHTML(q,{ord:ui.ord,sel:ui.sel,locked,mode:'study'});
+ if(locked){
+  const L=ui.last;
+  h+='<div class="fb '+(L.ok?'ok':'bad')+'"><b>'+(L.ok?(L.overridden?'Counted as correct.':'Correct!'):'Not quite.')+'</b>';
+  if(q.type==='id'&&!L.ok)h+='<div>Your answer: <b>'+esc(String(ui.sel))+'</b></div>';
+  if(!L.ok||q.type==='id')h+='<div>Correct answer: <b>'+esc(correctText(q))+'</b></div>';
+  h+='<p>'+esc(q.explanation)+'</p><p class="note">Reviewer section: '+esc(SUBJECTS[q.subject].name)+' → '+esc(q.topic)+'</p>';
+  const m=store.mistakes[q.id];
+  if(L.cleared)h+='<p class="note"><b>Removed from your mistakes list</b> — you answered it correctly twice in a row.</p>';
+  else if(L.ok&&m)h+='<p class="note">Mistake progress: '+m.ok+' of 2 correct in a row to clear it.</p>';
+  else if(!L.ok)h+='<p class="note">Saved to “Review my mistakes.”</p>';
+  h+='</div><div class="row">'+(q.type==='id'&&!L.ok?'<button class="btn" data-act="override">My answer was also correct</button>':'')+'<button class="btn pri" id="nextbtn" data-act="next">'+(ui.i+1>=n?'See results':'Next question')+'</button></div>';
+ }
+ return h+'</div>';
+}
+function studyAnswer(v){
+ const q=ui.list[ui.i];if(ui.answered)return;
+ if(q.type==='id'&&!String(v).trim())return;
+ const ok=isCorrect(q,v);ui.snap=snapshot(q.id);const r=record(q,ok);
+ ui.sel=v;ui.answered=true;ui.last={ok,cleared:r.cleared};
+ if(ok)ui.correct++;else ui.wrongs.push(q);if(r.cleared)ui.cleared++;
+ render();
+}
+function studyDone(){
+ const n=ui.list.length,p=Math.round(ui.correct/n*100);
+ let h='<h1>Session complete</h1><div class="card"><div class="hero-score">'+ui.correct+' / '+n+'</div><p class="lead" style="margin:8px 0 0">'+p+'% correct'+(ui.src==='mistakes'?' · '+ui.cleared+' question'+(ui.cleared===1?'':'s')+' cleared from your mistakes list':'')+'</p>'+bar(p)+'<div class="row">'+
+ (ui.src==='mistakes'?'<button class="btn pri" data-act="nav" data-v="mistakes">Back to my mistakes</button>':'<button class="btn pri" data-act="nav" data-v="study">New session</button>')+'<button class="btn" data-act="nav" data-v="home">Dashboard</button></div></div>';
+ if(ui.wrongs.length)h+='<h2>Missed in this session</h2>'+ui.wrongs.map(q=>'<div class="card flat">'+tagsHTML(q,false)+'<p class="qtext" style="font-size:1rem">'+esc(q.question)+'</p><p style="margin:0"><b>Answer:</b> '+esc(correctText(q))+'</p><div class="expl">'+esc(q.explanation)+'</div></div>').join('');
+ return h;
+}
+
+/* =====================================================================
+   9. MOCK EXAM
+   ===================================================================== */
+function vExam(){
+ if(ui.stage==='result')return resultHTML(ui.exam);
+ if(ui.stage==='run'&&store.active)return runHTML();
+ const sub=Object.keys(SUBJECTS).map(k=>{const n=QUESTIONS.filter(q=>q.subject===k).length;return '<label class="chk"><input type="checkbox" class="ex-s" value="'+k+'" data-ch="exset" checked> '+esc(SUBJECTS[k].name)+' <span class="note" style="margin:0">('+n+')</span></label>';}).join('');
+ let h='<h1>Mock final exam</h1><p class="lead">Random questions, no answers shown until you submit.</p>';
+ if(store.active){const A=store.active;h+='<div class="card"><h2>Unfinished exam</h2><p>'+A.items.filter(i=>!isBlank(i)).length+' of '+A.items.length+' answered · '+mmss(A.elapsed)+' used.</p><div class="row"><button class="btn pri" data-act="resume">Resume exam</button><button class="btn" data-act="discard">Discard it</button></div></div>';}
+ h+='<div class="card form"><div><b>Subjects</b><div class="grid" style="margin-top:8px;gap:6px">'+sub+'</div></div>'+
+ '<div class="two"><label>Number of questions<select id="x-n" data-ch="exset"><option value="20">20</option><option value="40">40</option><option value="60">60</option><option value="all">All available</option></select></label>'+
+ '<label>Timer<select id="x-t"><option value="0">No timer</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select></label></div>'+
+ '<div class="row" style="margin:0"><button class="btn pri" data-act="startexam" id="x-go">Start exam</button><span class="note" id="x-count" style="margin:0"></span></div></div>';
+ return h;
+}
+function updateExamSetup(){
+ const subs=[...document.querySelectorAll('.ex-s:checked')].map(e=>e.value);
+ const pool=QUESTIONS.filter(q=>subs.includes(q.subject)).length,c=$('#x-n').value;
+ const n=c==='all'?pool:Math.min(+c,pool);
+ $('#x-count').textContent=pool?('This exam will have '+n+' question'+(n===1?'':'s')+' (from '+pool+' available).'):'Select at least one subject.';
+ $('#x-go').disabled=!pool;
+}
+function runHTML(){
+ const A=store.active,it=A.items[A.idx],q=QMAP[it.id],n=A.items.length;
+ const done=A.items.filter(i=>!isBlank(i)).length;
+ let h='<div class="xhead"><div class="row sp" style="margin:0 0 8px"><b>Question '+(A.idx+1)+' of '+n+'</b><span class="clock" id="clock">'+clockText()+'</span></div>'+bar(done/n*100)+'<div class="meta" style="margin:6px 0 10px"><span id="ans-count">Answered: '+done+' / '+n+'</span><span>'+(A.limit?'Time left':'Time used')+'</span></div></div>';
+ h+='<div class="card">'+tagsHTML(q,false).replace('<span class="chip">'+TYPE_LABEL[q.type]+'</span>','<span class="chip">'+TYPE_LABEL[q.type]+'</span>')+'<p class="qtext">'+esc(q.question)+'</p>'+inputHTML(q,{ord:it.ord,sel:it.ans,locked:false,mode:'exam'});
+ h+='<div class="row sp"><button class="btn sm" data-act="clear"'+(isBlank(it)?' disabled':'')+'>Clear my answer</button></div></div>';
+ h+='<div class="row sp" style="margin-bottom:18px"><button class="btn" data-act="prev"'+(A.idx===0?' disabled':'')+'>← Previous</button><button class="btn" data-act="nextq"'+(A.idx===n-1?' disabled':'')+'>Next →</button><button class="btn pri" data-act="submit">Submit exam</button></div>';
+ h+='<div class="card flat"><b>Question navigator</b><p class="note">Filled = answered, plain = unanswered. Tap a number to jump.</p><div class="pal" id="palette">'+paletteHTML()+'</div></div>';
+ return h;
+}
+function paletteHTML(){const A=store.active;return A.items.map((it,i)=>'<button class="pb'+(!isBlank(it)?' done':'')+(i===A.idx?' cur':'')+'" data-act="jump" data-i="'+i+'" aria-label="Question '+(i+1)+(isBlank(it)?', unanswered':', answered')+'">'+(i+1)+'</button>').join('');}
+function clockText(){const A=store.active;return A.limit?mmss(A.limit-A.elapsed):mmss(A.elapsed);}
+function startTimer(){
+ const A=store.active;if(!A)return;const base=Date.now()-A.elapsed*1000;
+ timer=setInterval(()=>{
+  const a=store.active;if(!a){stopTimer();return;}
+  a.elapsed=Math.floor((Date.now()-base)/1000);
+  const el=$('#clock');if(el){el.textContent=clockText();el.classList.toggle('low',!!a.limit&&a.limit-a.elapsed<=60);}
+  if(a.elapsed%5===0)save();
+  if(a.limit&&a.elapsed>=a.limit){finishExam(true);}
+ },1000);
+}
+function stopTimer(){if(timer){clearInterval(timer);timer=null;if(store.active)save();}}
+function examAnswer(v){const A=store.active;A.items[A.idx].ans=v;save();render();}
+function liveTyping(el){
+ const A=store.active;if(!A)return;A.items[A.idx].ans=el.value;save();
+ const p=$('#palette');if(p)p.innerHTML=paletteHTML();
+ const d=A.items.filter(i=>!isBlank(i)).length,ac=$('#ans-count');if(ac)ac.textContent='Answered: '+d+' / '+A.items.length;
+}
+function finishExam(auto){
+ const A=store.active;if(!A)return;
+ stopTimer();document.querySelectorAll('.overlay').forEach(o=>o.remove());
+ let cc=0,w=0,u=0;const subj={};
+ A.items.forEach(it=>{
+  const q=QMAP[it.id],sb=subj[q.subject]||(subj[q.subject]={c:0,t:0});sb.t++;
+  if(isBlank(it)){u++;}else if(isCorrect(q,it.ans)){cc++;sb.c++;record(q,true);}else{w++;record(q,false);}
+ });
+ const n=A.items.length,time=A.limit?Math.min(A.elapsed,A.limit):A.elapsed;
+ const rec={id:Date.now(),ts:Date.now(),n,c:cc,w,u,pct:Math.round(cc/n*1000)/10,time,limit:A.limit,auto:!!auto,subj,items:A.items.map(i=>({id:i.id,ans:i.ans}))};
+ store.exams.unshift(rec);store.exams=store.exams.slice(0,15);store.active=null;save();
+ view='exam';ui={stage:'result',exam:rec,rf:'all'};render();window.scrollTo(0,0);
+}
+function resultHTML(rec){
+ const rows=Object.keys(SUBJECTS).filter(k=>rec.subj[k]).map(k=>({k,c:rec.subj[k].c,t:rec.subj[k].t,p:rec.subj[k].c/rec.subj[k].t*100}));
+ const grade=it=>isBlank(it)?'u':isCorrect(QMAP[it.id],it.ans)?'c':'w';
+ const missTopics={};rec.items.forEach(it=>{if(grade(it)!=='c'){const q=QMAP[it.id];(missTopics[q.subject]=missTopics[q.subject]||{});missTopics[q.subject][q.topic]=(missTopics[q.subject][q.topic]||0)+1;}});
+ let h='<h1>Exam results</h1><p class="lead">'+fmtDate(rec.ts)+(rec.auto?' · Time ran out, so the exam was submitted automatically.':'')+'</p>';
+ h+='<div class="card"><div class="hero-score">'+fp(rec.pct)+'</div><p class="lead" style="margin:6px 0 12px">'+rec.c+' of '+rec.n+' correct</p>'+bar(rec.pct)+'</div>';
+ h+='<div class="grid g4" style="margin-bottom:18px"><div class="tile"><b>'+rec.n+'</b><span>Total questions</span></div><div class="tile"><b style="color:var(--ok)">'+rec.c+'</b><span>Correct</span></div><div class="tile"><b style="color:var(--bad)">'+rec.w+'</b><span>Incorrect</span></div><div class="tile"><b style="color:var(--warn)">'+rec.u+'</b><span>Unanswered</span></div><div class="tile"><b>'+dur(rec.time)+'</b><span>Time spent'+(rec.limit?' (limit '+Math.round(rec.limit/60)+' min)':'')+'</span></div></div>';
+ h+='<div class="card"><h2>Performance by subject</h2>'+rows.map(r=>'<div class="subj-row"><div class="nm">'+esc(SUBJECTS[r.k].short)+'</div>'+bar(r.p,SUBJECTS[r.k].color)+'<div class="vl">'+r.c+'/'+r.t+' · '+fp(Math.round(r.p*10)/10)+'</div></div>').join('');
+ if(rows.length>1){
+  const mx=Math.max(...rows.map(r=>r.p)),mn=Math.min(...rows.map(r=>r.p));
+  if(mx===mn)h+='<p class="note">All tested subjects scored the same ('+fp(Math.round(mx*10)/10)+').</p>';
+  else h+='<p style="margin-top:14px"><b>Strongest:</b> '+rows.filter(r=>r.p===mx).map(r=>esc(SUBJECTS[r.k].short)).join(', ')+' &nbsp;·&nbsp; <b>Weakest:</b> '+rows.filter(r=>r.p===mn).map(r=>esc(SUBJECTS[r.k].short)).join(', ')+'</p>';
+ }else h+='<p class="note">Only one subject was tested, so there is no strongest or weakest comparison.</p>';
+ h+='</div><div class="card"><h2>Recommendations based on this exam</h2>';
+ [...rows].sort((a,b)=>a.p-b.p).forEach(r=>{
+  const topics=Object.entries(missTopics[r.k]||{}).sort((a,b)=>b[1]-a[1]).map(e=>esc(e[0])+' ('+e[1]+')').join(', ');
+  if(r.p<60)h+='<div class="rec warn"><b>Review '+esc(SUBJECTS[r.k].name)+' again</b> — you scored '+fp(Math.round(r.p*10)/10)+'. Focus on: '+topics+'.</div>';
+  else if(r.p<80)h+='<div class="rec"><b>'+esc(SUBJECTS[r.k].short)+'</b> is close ('+fp(Math.round(r.p*10)/10)+'). Revisit: '+(topics||'—')+'.</div>';
+  else h+='<div class="rec good"><b>'+esc(SUBJECTS[r.k].short)+'</b> is strong ('+fp(Math.round(r.p*10)/10)+').'+(topics?' Small gaps: '+topics+'.':'')+'</div>';
+ });
+ h+='<p class="note">Guide: below 60% = review again, 60–79% = getting close, 80%+ = strong.</p></div>';
+ const cnt={all:rec.items.length,w:rec.w,u:rec.u,c:rec.c},F=ui.rf||'all';
+ h+='<div class="row sp" style="margin-bottom:12px"><div class="row" style="margin:0">'+[['all','All'],['w','Incorrect'],['u','Unanswered'],['c','Correct']].map(f=>'<button class="btn sm'+(F===f[0]?' pri':'')+'" data-act="rfilter" data-f="'+f[0]+'">'+f[1]+' ('+cnt[f[0]]+')</button>').join('')+'</div><div class="row" style="margin:0">'+(mistakeIds().length?'<button class="btn sm" data-act="practicemist">Practice my mistakes</button>':'')+'<button class="btn sm" data-act="nav" data-v="exam">New exam</button><button class="btn sm" data-act="nav" data-v="home">Dashboard</button></div></div>';
+ rec.items.forEach((it,i)=>{
+  const g=grade(it);if(F!=='all'&&F!==g)return;
+  const q=QMAP[it.id];
+  h+='<article class="rv '+g+'"><div class="tags" style="margin:0"><b>Q'+(i+1)+'</b><span class="chip '+(g==='c'?'ok':g==='w'?'bad':'un')+'">'+(g==='c'?'Correct':g==='w'?'Incorrect':'Unanswered')+'</span><span class="chip sub" style="--c:'+SUBJECTS[q.subject].color+'">'+esc(SUBJECTS[q.subject].short)+'</span><span class="chip">'+TYPE_LABEL[q.type]+'</span></div><p class="qq">'+esc(q.question)+'</p>'+
+  '<div class="kv"><span>Your answer</span><b>'+esc(ansText(q,it.ans))+'</b></div><div class="kv"><span>Correct answer</span><b>'+esc(correctText(q))+'</b></div><div class="expl">'+esc(q.explanation)+'</div><small class="note">Reviewer section: '+esc(SUBJECTS[q.subject].name)+' → '+esc(q.topic)+'</small></article>';
+ });
+ return h;
+}
+
+/* =====================================================================
+   10. FLASHCARDS
+   ===================================================================== */
+const cardW=cd=>({need:4,know:0.4}[store.cards[cd.id]]||2);
+function cardStats(){let k=0,n=0;Object.keys(store.cards).forEach(id=>{if(CMAP[id]||QMAP[id]){if(store.cards[id]==='know')k++;else if(store.cards[id]==='need')n++;}});return {k,n};}
+function vCards(){
+ if(ui.stage==='deck')return deckHTML();
+ if(ui.stage==='end')return deckEnd();
+ const st=cardStats(),opts=Object.keys(SUBJECTS).map(k=>'<option value="'+k+'">'+esc(SUBJECTS[k].name)+'</option>').join('');
+ return '<h1>Flashcards</h1><p class="lead">Read the clue, try to say the answer out loud, then flip. '+CARDS.length+' cards available · '+st.k+' marked “I know this” · '+st.n+' marked “Need more practice.”</p><div class="card form">'+
+ '<label>Subject<select id="c-subj"><option value="all">All subjects</option>'+opts+'</select></label>'+
+ '<label class="chk"><input type="checkbox" id="c-pri" checked> Show cards I need to practice more often</label>'+
+ '<label class="chk"><input type="checkbox" id="c-need"> Only cards marked “Need more practice”</label>'+
+ '<label class="chk"><input type="checkbox" id="c-mist"> Add my missed quiz questions as cards ('+mistakeIds().length+')</label>'+
+ '<div class="row" style="margin:0"><button class="btn pri" data-act="startcards">Start flashcards</button></div></div>';
+}
+function buildDeck(){
+ const subj=$('#c-subj').value,need=$('#c-need').checked,inc=$('#c-mist').checked,pri=$('#c-pri').checked;
+ let list=CARDS.filter(cd=>subj==='all'||cd.subject===subj);
+ if(inc)mistakeIds().map(id=>QMAP[id]).filter(q=>subj==='all'||q.subject===subj).forEach(q=>list.push(qToCard(q)));
+ if(need)list=list.filter(cd=>store.cards[cd.id]==='need');
+ return {list,pri};
+}
+function orderDeck(list,pri){return pri?weightedOrder(list,cardW):shuffle(list);}
+function deckHTML(){
+ const cd=ui.cards[ui.i],n=ui.cards.length,s=store.cards[cd.id];
+ return '<div class="row sp" style="margin:0 0 8px"><b>Flashcards</b><button class="btn sm" data-act="nav" data-v="cards">Change filters</button></div>'+bar((ui.i+1)/n*100)+
+ '<div class="meta"><span>Card '+(ui.i+1)+' of '+n+'</span><span>'+(s==='know'?'Marked: I know this':s==='need'?'Marked: Need more practice':'Not marked yet')+'</span></div>'+
+ '<div class="tags"><span class="chip sub" style="--c:'+SUBJECTS[cd.subject].color+'">'+esc(SUBJECTS[cd.subject].short)+'</span><span class="chip">'+esc(cd.topic)+'</span></div>'+
+ '<div class="fcard'+(ui.flip?' back':'')+(ui.anim?' anim':'')+'" data-act="flip" tabindex="0" role="button" aria-label="Flip card"><span class="fc-tag">'+(ui.flip?'ANSWER':'CLUE — try to recall the answer first')+'</span><div class="fc-main">'+esc(ui.flip?cd.back.split('\n\n')[0]:cd.front)+'</div>'+(ui.flip&&cd.back.indexOf('\n\n')>-1?'<div class="fc-note">'+esc(cd.back.split('\n\n').slice(1).join('\n\n'))+'</div>':'')+'</div>'+
+ '<div class="row sp"><button class="btn" data-act="cprev"'+(ui.i===0?' disabled':'')+'>← Previous</button><button class="btn" data-act="flip">Flip card</button><button class="btn" data-act="cnext">Next →</button></div>'+
+ '<div class="row"><button class="btn" data-act="mark" data-m="need">Need more practice</button><button class="btn pri" data-act="mark" data-m="know">I know this</button><button class="btn" data-act="cshuffle">Shuffle</button></div><p class="note">Keyboard: Space = flip, ← → = previous / next.</p>';
+}
+function deckEnd(){
+ let k=0,n=0,u=0;ui.cards.forEach(cd=>{const s=store.cards[cd.id];if(s==='know')k++;else if(s==='need')n++;else u++;});
+ return '<h1>Deck complete</h1><div class="card"><div class="grid g4"><div class="tile"><b style="color:var(--ok)">'+k+'</b><span>I know this</span></div><div class="tile"><b style="color:var(--warn)">'+n+'</b><span>Need more practice</span></div><div class="tile"><b>'+u+'</b><span>Not marked</span></div></div><div class="row"><button class="btn pri" data-act="restartdeck">Go through again</button><button class="btn" data-act="nav" data-v="cards">Change filters</button><button class="btn" data-act="nav" data-v="home">Dashboard</button></div></div>';
+}
+
+/* =====================================================================
+   11. REVIEW MY MISTAKES
+   ===================================================================== */
+function vMistakes(){
+ const f=ui.mf||'all',all=mistakeIds().map(id=>QMAP[id]),list=all.filter(q=>f==='all'||q.subject===f);
+ const opts=Object.keys(SUBJECTS).map(k=>'<option value="'+k+'"'+(f===k?' selected':'')+'>'+esc(SUBJECTS[k].short)+' ('+all.filter(q=>q.subject===k).length+')</option>').join('');
+ let h='<h1>Review my mistakes</h1><p class="lead">Every question you answer incorrectly is saved here. Answer it correctly <b>2 times in a row</b> and it is removed automatically.</p>';
+ h+='<div class="grid g4" style="margin-bottom:18px"><div class="tile"><b>'+all.length+'</b><span>Still to master</span></div><div class="tile"><b style="color:var(--ok)">'+(store.cleared||0)+'</b><span>Cleared so far</span></div></div>';
+ if(!all.length)return h+'<div class="card"><h2>No mistakes saved</h2><p>Nothing to review right now. Answer questions in Study mode or take a mock exam, and any wrong answers will show up here.</p><div class="row"><button class="btn pri" data-act="nav" data-v="study">Go to Study mode</button></div></div>';
+ h+='<div class="row sp" style="margin:0 0 14px"><label class="row" style="margin:0"><span class="note" style="margin:0">Subject</span><select id="m-subj" data-ch="msubj" style="width:auto"><option value="all">All subjects ('+all.length+')</option>'+opts+'</select></label><button class="btn pri" data-act="practicemist"'+(list.length?'':' disabled')+'>Practice '+list.length+' question'+(list.length===1?'':'s')+'</button></div>';
+ h+=list.map(q=>{
+  const m=store.mistakes[q.id],st=store.q[q.id]||{r:0,w:0};
+  return '<details class="mi"><summary>'+esc(q.question)+'</summary><div class="in">'+tagsHTML(q,true)+'<p><b>Correct answer:</b> '+esc(correctText(q))+'</p><div class="expl">'+esc(q.explanation)+'</div><p class="note">Improvement: '+m.ok+' of 2 correct in a row · lifetime '+st.r+' right / '+st.w+' wrong</p>'+bar(m.ok/2*100)+'<div class="row"><button class="btn sm" data-act="removemist" data-id="'+q.id+'">Remove from list (I understand this)</button></div></div></details>';
+ }).join('');
+ return h;
+}
+
+/* =====================================================================
+   12. SOURCE NOTES
+   ===================================================================== */
+function vNotes(){
+ const issues=validate();
+ const rows=Object.keys(SUBJECTS).map(k=>{const qs=QUESTIONS.filter(q=>q.subject===k),by=t=>qs.filter(q=>q.type===t).length,dd=d=>qs.filter(q=>q.difficulty===d).length;return '<tr><td>'+esc(SUBJECTS[k].short)+'</td><td>'+qs.length+'</td><td>'+by('mcq')+'</td><td>'+by('tf')+'</td><td>'+by('id')+'</td><td>'+by('sit')+'</td><td>'+dd('easy')+' / '+dd('medium')+' / '+dd('hard')+'</td><td>'+CARDS.filter(cd=>cd.subject===k).length+'</td></tr>';}).join('');
+ return '<h1>Source notes</h1><p class="lead">How the questions were built from your reviewer, and what to double-check.</p>'+
+ '<div class="card"><h2>Items in the reviewer to double-check</h2><p>These parts looked unclear, garbled, or questionable, so they were flagged instead of silently changed.</p>'+NOTES.map(n=>'<div class="rec warn"><b>'+esc(n[0])+'</b><br>'+esc(n[1])+'</div>').join('')+'</div>'+
+ '<div class="card"><h2>Question bank coverage</h2><div class="scroll"><table><thead><tr><th>Subject</th><th>Total</th><th>MC</th><th>T/F</th><th>ID</th><th>Situational</th><th>Easy / Med / Hard</th><th>Cards</th></tr></thead><tbody>'+rows+'<tr><td><b>All</b></td><td><b>'+QUESTIONS.length+'</b></td><td colspan="5"></td><td><b>'+CARDS.length+'</b></td></tr></tbody></table></div>'+
+ '<p class="note">The Fast Exam Recall Matrix items were folded into their subjects as high-priority questions. Questions marked ★ Exam Focus in your reviewer are noted in the explanations.</p>'+
+ (issues.length?'<div class="rec warn"><b>Bank check found problems:</b><br>'+issues.map(esc).join('<br>')+'</div>':'<div class="rec good">Bank check passed: no duplicates, no empty fields, every multiple-choice question has 4 distinct choices and exactly one correct answer.</div>')+'</div>'+
+ '<div class="card"><h2>Adding your own questions</h2><p>Open this file in a text editor and add lines at the <b>end</b> of the question bank, for example:</p><pre>mc("digital", T.dis, "easy", "Your question?", "Correct answer", ["Wrong 1","Wrong 2","Wrong 3"], "Why it is correct.");\ntf("material", T.mat, "easy", "A statement.", true, "Explanation.");\nidq("spiritual", T.logo, "easy", "A clue.", "Answer", ["alternate spelling"], "Explanation.");</pre><p class="note">For multiple choice, write the correct answer first. The app shuffles the choices for you.</p></div>';
+}
+
+/* =====================================================================
+   13. ACTIONS & EVENTS
+   ===================================================================== */
+const actions={
+ nav(t){go(t.dataset.v);},
+ theme(){const t=document.documentElement.dataset.theme==='dark'?'light':'dark';store.theme=t;save();setTheme(t);},
+ reset(){ask('Reset all progress?','This will delete your saved scores, mistakes, flashcard marks, exam history, and any exam in progress. This cannot be undone.','Yes, reset everything',()=>{const th=store.theme;try{localStorage.removeItem(KEY);}catch(e){}store=blank();store.theme=th;save();go('home');},true);},
+ pick(t){const v=parseVal(t.dataset.v);if(view==='study')studyAnswer(v);else if(view==='exam'&&store.active)examAnswer(v);},
+ idsubmit(){const el=$('#idin');if(el)studyAnswer(el.value);},
+ reveal(){ui.revealed=true;render();},
+ next(){if(!ui.answered)return;if(ui.i+1>=ui.list.length)ui.stage='done';else{ui.i++;prepQ();}render();window.scrollTo(0,0);},
+ override(){const q=ui.list[ui.i];if(!ui.answered||ui.last.ok)return;restore(q.id,ui.snap);const r=record(q,true);ui.last={ok:true,cleared:r.cleared,overridden:true};ui.correct++;ui.wrongs=ui.wrongs.filter(x=>x!==q);if(r.cleared)ui.cleared++;render();},
+ quitstudy(){ask('End this session?','Your answers so far are already saved.','End session',()=>{ui.stage='done';ui.list=ui.list.slice(0,ui.i+(ui.answered?1:0))||ui.list;if(!ui.list.length){go(ui.src==='mistakes'?'mistakes':'study');}else render();});},
+ startstudy(){const list0=filteredQs();if(!list0.length)return;const len=$('#f-len').value;store.recall=$('#f-recall').checked;save();let list=$('#f-pri').checked?weightedOrder(list0,qWeight):shuffle(list0);if(len!=='all')list=list.slice(0,+len);startStudy(list,'study');},
+ startexam(){
+  const subs=[...document.querySelectorAll('.ex-s:checked')].map(e=>e.value);const pool=QUESTIONS.filter(q=>subs.includes(q.subject));if(!pool.length)return;
+  const cc=$('#x-n').value,n=cc==='all'?pool.length:Math.min(+cc,pool.length),picked=shuffle(pool).slice(0,n);
+  store.active={id:Date.now(),elapsed:0,limit:(+$('#x-t').value)*60,idx:0,subjects:subs,items:picked.map(q=>({id:q.id,ord:q.options?shuffle(q.options.map((_,i)=>i)):[],ans:null}))};
+  save();ui={stage:'run'};render();window.scrollTo(0,0);
+ },
+ resume(){go('exam');ui={stage:'run'};render();window.scrollTo(0,0);},
+ discard(){ask('Discard this exam?','Your answers in the unfinished exam will be lost.','Discard',()=>{store.active=null;save();go('exam');},true);},
+ prev(){const A=store.active;if(A.idx>0){A.idx--;save();render();window.scrollTo(0,0);}},
+ nextq(){const A=store.active;if(A.idx<A.items.length-1){A.idx++;save();render();window.scrollTo(0,0);}},
+ jump(t){const A=store.active;A.idx=+t.dataset.i;save();render();window.scrollTo(0,0);},
+ clear(){const A=store.active;A.items[A.idx].ans=null;save();render();},
+ submit(){const A=store.active,un=A.items.filter(isBlank).length;
+  ask(un?'Submit incomplete exam?':'Submit exam?',un?'You still have <b>'+un+'</b> unanswered question'+(un>1?'s':'')+'. Unanswered questions count as not correct. Submit anyway?':'Once you submit, your answers are final and your score will be shown.','Submit exam',()=>finishExam(false));},
+ viewexam(t){const rec=store.exams.find(e=>String(e.id)===t.dataset.id);if(!rec)return;go('exam');ui={stage:'result',exam:rec,rf:'all'};render();window.scrollTo(0,0);},
+ rfilter(t){ui.rf=t.dataset.f;render();},
+ practicemist(){
+  const f=view==='mistakes'?(ui.mf||'all'):'all';
+  const list=mistakeIds().map(id=>QMAP[id]).filter(q=>f==='all'||q.subject===f);if(!list.length)return;
+  const ordered=weightedOrder(list,qWeight);go('study');startStudy(ordered,'mistakes');
+ },
+ removemist(t){delete store.mistakes[t.dataset.id];save();render();},
+ startcards(){const d=buildDeck();if(!d.list.length){alert('No cards match these filters yet. Mark some cards as “Need more practice” first, or change the filters.');return;}ui={stage:'deck',cards:orderDeck(d.list,d.pri),pri:d.pri,all:d.list,i:0,flip:false};render();window.scrollTo(0,0);},
+ flip(){ui.flip=!ui.flip;ui.anim=true;render();ui.anim=false;},
+ cnext(){if(ui.i<ui.cards.length-1){ui.i++;ui.flip=false;render();}else{ui.stage='end';render();}},
+ cprev(){if(ui.i>0){ui.i--;ui.flip=false;render();}},
+ mark(t){store.cards[ui.cards[ui.i].id]=t.dataset.m;save();actions.cnext();},
+ cshuffle(){ui.cards=orderDeck(ui.all,ui.pri);ui.i=0;ui.flip=false;render();},
+ restartdeck(){ui.cards=orderDeck(ui.all,ui.pri);ui.i=0;ui.flip=false;ui.stage='deck';render();}
+};
+document.addEventListener('click',e=>{
+ const t=e.target.closest('[data-act]');if(!t||t.disabled)return;
+ const fn=actions[t.dataset.act];if(fn)fn(t,e);
+});
+document.addEventListener('change',e=>{
+ const k=e.target.dataset&&e.target.dataset.ch;if(!k)return;
+ if(k==='filt')updateFilter(e.target);
+ else if(k==='exset')updateExamSetup();
+ else if(k==='msubj'){ui.mf=e.target.value;render();}
+});
+document.addEventListener('input',e=>{if(e.target.id==='idin'&&view==='exam'&&ui.stage==='run')liveTyping(e.target);});
+document.addEventListener('keydown',e=>{
+ const ov=document.querySelector('.overlay');
+ if(ov){if(e.key==='Escape')ov.remove();return;}
+ const ae=document.activeElement,tag=ae?ae.tagName:'',typing=tag==='INPUT'||tag==='SELECT'||tag==='TEXTAREA';
+ if(view==='study'&&ui.stage==='q'){
+  if(e.key==='Enter'&&tag!=='BUTTON'){
+   if(ui.answered){e.preventDefault();actions.next();}
+   else if(ae&&ae.id==='idin'){e.preventDefault();actions.idsubmit();}
+   return;
+  }
+ }
+ if(typing||e.ctrlKey||e.metaKey||e.altKey)return;
+ const k=e.key.toLowerCase();
+ const optKey=()=>{const q=view==='study'?ui.list&&ui.list[ui.i]:store.active&&QMAP[store.active.items[store.active.idx].id];if(!q||q.type==='id')return;
+  const btns=document.querySelectorAll('.opt:not(:disabled)');let idx=-1;
+  if(q.type==='tf'){if(k==='t')idx=0;else if(k==='f')idx=1;}else{idx='abcd'.indexOf(k);if(idx<0)idx='1234'.indexOf(k);}
+  if(idx>=0&&btns[idx]){e.preventDefault();btns[idx].click();}};
+ if(view==='study'&&ui.stage==='q'&&!ui.answered)optKey();
+ else if(view==='exam'&&ui.stage==='run'&&store.active){
+  if(e.key==='ArrowRight'){actions.nextq();}else if(e.key==='ArrowLeft'){actions.prev();}else optKey();
+ }else if(view==='cards'&&ui.stage==='deck'){
+  if(e.key===' '||e.key==='Spacebar'){e.preventDefault();actions.flip();}
+  else if(e.key==='ArrowRight')actions.cnext();else if(e.key==='ArrowLeft')actions.cprev();
+ }
+});
+window.addEventListener('beforeunload',()=>{if(store.active)save();});
+
+/* =====================================================================
+   14. START
+   ===================================================================== */
+const prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+setTheme(store.theme||(prefersDark?'dark':'light'));
+render();
+window.__UTS={QUESTIONS,CARDS,validate,store:()=>store,actions,go,norm,checkId};
+})();
+</script>
+</body>
+</html>
